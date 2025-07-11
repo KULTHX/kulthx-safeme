@@ -1,40 +1,42 @@
-# Use official Node.js runtime as base image
-FROM node:18-alpine
-
-# Set working directory
+# Multi-stage build for production
+FROM node:20-alpine AS base
 WORKDIR /app
+RUN apk add --no-cache libc6-compat curl
 
-# Copy package files
+# Dependencies stage
+FROM base AS deps
 COPY package*.json ./
+RUN npm ci --only=production && npm cache clean --force
 
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy application code
+# Build stage
+FROM base AS builder
+COPY package*.json ./
+RUN npm ci
 COPY . .
+RUN npm run build
 
-# Create data directory for JSON storage
-RUN mkdir -p data
+# Production stage
+FROM base AS runner
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 safeme
 
-# Expose port
+# Copy built application
+COPY --from=builder --chown=safeme:nodejs /app/dist ./dist
+COPY --from=deps --chown=safeme:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=safeme:nodejs /app/package*.json ./
+
+# Create scripts.json file
+RUN echo '{}' > scripts.json && chown safeme:nodejs scripts.json
+
+USER safeme
+
 EXPOSE 5000
 
-# Set environment to production
 ENV NODE_ENV=production
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S kulthx -u 1001
-
-# Change ownership of app directory
-RUN chown -R kulthx:nodejs /app
-
-# Switch to non-root user
-USER kulthx
+ENV PORT=5000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node healthcheck.js
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:5000/health || exit 1
 
-# Start the application
 CMD ["npm", "start"]
