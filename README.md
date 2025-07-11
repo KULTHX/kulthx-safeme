@@ -1,57 +1,132 @@
-# KULTHX SAFEME - Secure Roblox Script Protection Platform
+# KULTHX SAFEME - منصة آمنة لحماية نصوص Roblox
 
-🔒 **Advanced Roblox Script Protection with Docker Deployment**
+## نظرة عامة
 
-A production-ready platform for protecting Roblox scripts with enhanced security features, loadstring generation, and seamless deployment to Koyeb.
+KULTHX SAFEME هي منصة أمان متقدمة لحماية نصوص Roblox من خلال التشفير وإنشاء روابط آمنة. المنصة توفر بيئة آمنة حيث يمكن للمستخدمين رفع نصوصهم وتشفيرها والحصول على روابط محمية للتنفيذ.
 
-## 🚀 Features
+## المميزات
 
-- **🛡️ Advanced Security**: Enhanced User-Agent filtering to prevent unauthorized access
-- **🔐 Script Protection**: Convert scripts into encrypted loadstrings for secure execution
-- **📱 Modern Interface**: Responsive React-based UI with dark theme
-- **⚡ Real-time Updates**: Socket.IO integration for live user count
-- **🐳 Docker Ready**: Production-optimized containerization
-- **☁️ Koyeb Deployment**: Seamless deployment to Koyeb platform
-- **📊 Health Monitoring**: Built-in health checks and monitoring
+- 🔒 **حماية متقدمة**: تشفير النصوص ومنع الوصول المباشر من المتصفحات
+- 🛡️ **أمان متقدم**: يسمح فقط لطلبات HTTP من Roblox
+- 🌐 **واجهة عصرية**: تصميم مظلم بدعم اللغة العربية
+- ⚡ **تتبع مباشر**: عرض عدد المستخدمين المتصلين لحظياً
+- 📱 **متجاوب**: يعمل على جميع الأجهزة والشاشات
 
-## 🛠️ Tech Stack
+## التقنيات المستخدمة
 
-### Backend
-- **Node.js** with Express
-- **TypeScript** for type safety
-- **Socket.IO** for real-time communication
-- **In-memory storage** for script data
-- **Rate limiting** and security middleware
+### الواجهة الأمامية
+- **React** مع TypeScript
+- **Tailwind CSS** للتصميم
+- **Shadcn/UI** لمكونات الواجهة
+- **Socket.IO** للتحديثات المباشرة
 
-### Frontend
-- **React** with TypeScript
-- **Tailwind CSS** for styling
-- **Shadcn/UI** components
-- **React Query** for state management
-- **Wouter** for routing
+### الخلفية
+- **Node.js** مع Express
+- **Socket.IO** للاتصال المباشر
+- **Helmet** للحماية
+- **Rate Limiting** لمنع الإساءة
 
-### DevOps
-- **Docker** multi-stage builds
-- **Docker Compose** for development
-- **Koyeb** deployment configuration
-- **GitHub Actions** for CI/CD
+## التثبيت والتشغيل
 
-## 🔧 Installation
+### محلياً
+```bash
+# تنزيل المشروع
+git clone https://github.com/nizartitwaniii/kulthx-safeme.git
+cd kulthx-safeme
 
-### Prerequisites
-- Node.js 18+ 
-- Docker (optional)
-- Git
+# تثبيت المكتبات
+npm install
 
-### Local Development
+# تشغيل المشروع
+npm run dev
+```
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/kulthx-safeme.git
-   cd kulthx-safeme
+### النشر على Koyeb
+
+1. **ربط GitHub**:
+   - انتقل إلى [Koyeb](https://app.koyeb.com)
+   - اختر "Deploy from GitHub"
+   - اختر repository: `nizartitwaniii/kulthx-safeme`
+
+2. **إعدادات البناء**:
+   - **Build Command**: `npm run build`
+   - **Start Command**: `npm start`
+   - **Port**: `5000`
+
+3. **متغيرات البيئة**:
+   ```
+   NODE_ENV=production
+   PORT=5000
    ```
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   
+4. **نشر المشروع**:
+   - اضغط على "Deploy"
+   - انتظر حتى اكتمال البناء
+
+## الاستخدام
+
+### 1. رفع النص
+- انتقل إلى الصفحة الرئيسية
+- الصق نص Roblox في المربع
+- اضغط على "حماية النص"
+
+### 2. الحصول على الرابط
+- سيتم إنشاء رابط آمن للنص
+- انسخ الرابط واستخدمه في Roblox
+
+### 3. إدارة النصوص
+- انتقل إلى "نصوصي" لعرض جميع النصوص
+- يمكنك تحرير أو حذف النصوص
+
+## الأمان
+
+- **حماية من المتصفحات**: منع الوصول المباشر للنصوص
+- **فلترة User-Agent**: السماح فقط لطلبات Roblox
+- **تشفير النصوص**: حماية محتوى النصوص
+- **Rate Limiting**: منع الإساءة في الاستخدام
+
+## إعدادات Docker
+
+```dockerfile
+# بناء المشروع
+docker build -t kulthx-safeme .
+
+# تشغيل الحاوية
+docker run -p 5000:5000 kulthx-safeme
+```
+
+## المشاكل الشائعة وحلولها
+
+### مشكلة البناء في Koyeb
+إذا واجهت خطأ في البناء، تأكد من:
+- وجود جميع الملفات المطلوبة
+- صحة متغيرات البيئة
+- استخدام Node.js 20 أو أحدث
+
+### مشكلة الأمان
+إذا كان النص لا يعمل في Roblox:
+- تأكد من استخدام الرابط الصحيح
+- تحقق من أن Roblox يسمح بالطلبات الخارجية
+- تأكد من أن النص لا يحتوي على أخطاء
+
+## الدعم والمساعدة
+
+إذا واجهت أي مشاكل:
+1. تحقق من سجل الأخطاء
+2. راجع الأسئلة الشائعة
+3. اتصل بفريق الدعم
+
+## الرخصة
+
+هذا المشروع مرخص تحت رخصة MIT - راجع ملف [LICENSE](LICENSE) للتفاصيل.
+
+## المساهمة
+
+المساهمات مرحب بها! يرجى:
+1. عمل Fork للمشروع
+2. إنشاء فرع للميزة الجديدة
+3. إرسال Pull Request
+
+---
+
+**KULTHX SAFEME** - حماية متقدمة لنصوص Roblox 🔒
