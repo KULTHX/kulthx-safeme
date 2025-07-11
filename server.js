@@ -270,7 +270,7 @@ app.get("/script.lua", async (req, res) => {
     const userAgent = req.headers["user-agent"] || "";
     const isRoblox = userAgent.includes("Roblox") || userAgent.includes("HttpGet");
     
-    if (!isRoblox && process.env.NODE_ENV === "production") {
+    if (!isRoblox) { // Removed process.env.NODE_ENV === "production" to apply in all environments
       return res.status(403).send("-- Access denied: This endpoint is for Roblox execution only");
     }
 
