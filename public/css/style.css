@@ -4,6 +4,7 @@
 body {
     font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
     direction: rtl;
+    color: #333; /* Darker text for better readability */
 }
 
 /* Custom scrollbar */
@@ -12,22 +13,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.6);
+    background: #4CAF50; /* Modern green */
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(102, 126, 234, 0.8);
+    background: #45a049; /* Darker green on hover */
 }
 
 /* Button animations */
 .btn-primary {
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: linear-gradient(45deg, #4CAF50, #8BC34A); /* Green gradient */
     transition: all 0.3s ease;
     border: none;
     color: white;
@@ -39,7 +40,7 @@ body {
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3); /* Green shadow */
 }
 
 .btn-primary:active {
@@ -49,19 +50,19 @@ body {
 /* Card animations */
 .card {
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Lighter border */
     transition: all 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); /* Lighter shadow */
 }
 
 /* Loading animation */
 .loading-spinner {
-    border: 4px solid rgba(255, 255, 255, 0.2);
-    border-top: 4px solid #667eea;
+    border: 4px solid rgba(0, 0, 0, 0.1); /* Lighter border */
+    border-top: 4px solid #4CAF50; /* Modern green */
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -80,8 +81,8 @@ textarea {
 }
 
 textarea:focus {
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); /* Green shadow */
+    border-color: #4CAF50; /* Modern green */
 }
 
 /* Success/Error messages */
@@ -107,7 +108,7 @@ textarea:focus {
 /* Code display */
 .code-display {
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.05); /* Lighter background */
     border-radius: 8px;
     padding: 16px;
     white-space: pre-wrap;
@@ -129,7 +130,7 @@ textarea:focus {
     left: 50%;
     width: 0;
     height: 0;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.1); /* Lighter ripple */
     border-radius: 50%;
     transform: translate(-50%, -50%);
     transition: width 0.6s, height 0.6s;
@@ -170,3 +171,4 @@ textarea:focus {
         font-size: 16px; /* Prevent zoom on iOS */
     }
 }
+
