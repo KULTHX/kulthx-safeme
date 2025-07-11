@@ -1,0 +1,24 @@
+services:
+  - name: kulthx-safeme
+    type: web
+    build:
+      type: dockerfile
+      dockerfile: Dockerfile
+    instance_type: nano
+    autoscaling:
+      min: 1
+      max: 3
+    regions:
+      - fra
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+    health_check:
+      http:
+        path: /health
+        port: 5000
+    routes:
+      - path: /
+        port: 5000
