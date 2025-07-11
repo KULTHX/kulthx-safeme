@@ -1,0 +1,38 @@
+[app]
+name = "kulthx-safeme"
+description = "KULTHX SAFEME - Roblox Script Protection Platform"
+
+[build]
+type = "docker"
+dockerfile = "Dockerfile"
+
+[deploy]
+instance_type = "nano"
+regions = ["fra", "was"]
+scaling = "auto"
+min_scale = 1
+max_scale = 3
+
+[env]
+NODE_ENV = "production"
+PORT = "8000"
+HOST = "0.0.0.0"
+MAX_SCRIPT_LENGTH = "50000"
+MAX_SCRIPTS_PER_USER = "50"
+RATE_LIMIT_WINDOW_MS = "900000"
+RATE_LIMIT_MAX_REQUESTS = "100"
+
+[ports]
+internal = 8000
+protocol = "http"
+
+[health_check]
+path = "/health"
+timeout = 30
+interval = 60
+retries = 3
+grace_period = 90
+
+[volumes]
+data = "/app/data"
+logs = "/app/logs"
