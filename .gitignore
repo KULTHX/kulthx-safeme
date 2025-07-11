@@ -96,6 +96,18 @@ temp/
 logs
 *.log
 
+# Python files (to avoid buildpack conflicts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pyproject.toml
+uv.lock
+*.py
+.pythonlibs/
+upload_*.py
+
 # Database
 data/
 *.json
