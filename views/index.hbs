@@ -1,0 +1,220 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KULTHX SAFEME</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    /* Custom animations for toast notifications */
+    @keyframes slideIn {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(-100%); opacity: 0; }
+    }
+    .toast {
+      animation: slideIn 0.3s ease-out forwards;
+    }
+    .toast.hide {
+      animation: slideOut 0.3s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-blue-900 text-white font-sans min-h-screen">
+  <!-- Toast Notification Container -->
+  <div id="toast" class="fixed top-4 right-4 z-50 hidden bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
+    <span id="toastMessage"></span>
+  </div>
+
+  <!-- Sidebar Toggle Button -->
+  <button id="sidebarToggle" class="fixed top-4 left-4 z-50 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-transform duration-200 hover:scale-105">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+
+  <!-- Sidebar -->
+  <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gray-800/90 backdrop-blur-md transform -translate-x-full transition-transform duration-300 ease-in-out z-40 shadow-xl">
+    <div class="p-6">
+      <h2 class="text-2xl font-bold text-blue-400">KULTHX SAFEME</h2>
+      <ul class="mt-8 space-y-4">
+        <li><a href="/real-home" class="block text-lg hover:bg-blue-600/50 px-4 py-2 rounded-lg transition-colors">🏠 Home</a></li>
+        <li><a href="/my-scripts" class="block text-lg hover:bg-blue-600/50 px-4 py-2 rounded-lg transition-colors">📜 My Scripts</a></li>
+        <li><a href="#about" class="block text-lg hover:bg-blue-600/50 px-4 py-2 rounded-lg transition-colors">ℹ About</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <header class="bg-blue-800/50 backdrop-blur-md p-6 shadow-lg">
+    <nav class="flex justify-center items-center max-w-7xl mx-auto">
+      <h1 class="text-3xl font-extrabold text-blue-400 tracking-tight">🔒 KULTHX SAFEME</h1>
+    </nav>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-8">
+    <section class="text-center py-16 bg-gray-800/50 rounded-2xl shadow-xl">
+      <h2 class="text-4xl font-bold mb-6 text-blue-300">Protect Your Roblox Scripts</h2>
+      <p class="text-lg mb-8 text-gray-300 max-w-2xl mx-auto">Securely encrypt and share your scripts with unique loadstring for Roblox executors!</p>
+      <div class="flex justify-center">
+        <textarea id="scriptInput" rows="6" class="w-full max-w-2xl p-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Paste your Roblox script here..."></textarea>
+      </div>
+      <button id="protectBtn" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform hover:scale-105">🚀 Protect Your Script</button>
+      <div id="result" class="mt-6 hidden">
+        <p class="text-green-400 font-semibold">✅ Protected Script Loadstring:</p>
+        <input id="scriptLink" type="text" readonly class="w-full max-w-2xl p-3 bg-gray-700/50 border border-gray-600 rounded-lg mt-2 text-gray-200">
+        <button id="copyBtn" class="mt-3 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-md transition-transform hover:scale-105">📋 Copy Loadstring</button>
+      </div>
+    </section>
+
+    <section id="about" class="py-16">
+      <h2 class="text-3xl font-bold mb-8 text-center text-blue-300">ℹ About KULTHX SAFEME</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-800/50 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold text-blue-400">What is KULTHX SAFEME?</h3>
+          <p class="mt-4 text-gray-300">An innovative platform for protecting Roblox scripts, offering secure solutions to convert your scripts into encrypted links for safe in-game use.</p>
+        </div>
+        <div class="bg-gray-800/50 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold text-blue-400">How It Works</h3>
+          <p class="mt-4 text-gray-300">Enter your script, and we will store it securely, generating a unique loadstring for use in Roblox via HttpGet.</p>
+        </div>
+        <div class="bg-gray-800/50 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold text-blue-400">Why Choose Us?</h3>
+          <ul class="mt-4 text-gray-300 list-disc list-inside">
+            <li>Strong encryption to protect your scripts.</li>
+            <li>Modern and user-friendly interface.</li>
+            <li>Unique and secure loadstring for each script.</li>
+            <li>Continuous updates and support.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-blue-800/50 backdrop-blur-md p-6 text-center">
+    <p class="text-lg text-gray-300">© 2025 KULTHX SAFEME | All Rights Reserved ✨</p>
+    <p class="mt-2 text-sm text-gray-400">👥 <span class="font-semibold">Online Users:</span> <span id="onlineUsers" class="bg-blue-600 text-white px-3 py-1 rounded-full">0</span></p>
+  </footer>
+
+  <script>
+    // Generate or retrieve user ID
+    let userId = localStorage.getItem("userId");
+    if (!userId) {
+      userId = crypto.randomUUID();
+      localStorage.setItem("userId", userId);
+    }
+
+    // Socket.IO for online users
+    const socket = io();
+    socket.on("onlineUsers", (count) => {
+      document.getElementById("onlineUsers").textContent = count;
+    });
+
+    // Sidebar toggle
+    const sidebar = document.getElementById("sidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    sidebarToggle.addEventListener("click", () => {
+      sidebar.classList.toggle("-translate-x-full");
+    });
+
+    // Toast notification function
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+      const toastMessage = document.getElementById("toastMessage");
+      toastMessage.textContent = message;
+      toast.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg ${type === "success" ? "bg-green-600" : "bg-red-600"} text-white toast`;
+      toast.classList.remove("hidden");
+      setTimeout(() => {
+        toast.classList.add("hide");
+        setTimeout(() => toast.classList.add("hidden"), 300);
+      }, 3000);
+    }
+
+    // Protect script
+    document.getElementById("protectBtn").addEventListener("click", async () => {
+      const script = document.getElementById("scriptInput").value;
+      if (!script) {
+        showToast("Please enter a script!", "error");
+        return;
+      }
+
+      try {
+        const response = await fetch("/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ script, userId })
+        });
+        const data = await response.json();
+        if (data.error) {
+          showToast(data.error, "error");
+          if (data.loadstring) {
+            const resultDiv = document.getElementById("result");
+            const scriptLink = document.getElementById("scriptLink");
+            scriptLink.value = data.loadstring;
+            resultDiv.classList.remove("hidden");
+          }
+          return;
+        }
+
+        const resultDiv = document.getElementById("result");
+        const scriptLink = document.getElementById("scriptLink");
+        scriptLink.value = data.loadstring;
+        resultDiv.classList.remove("hidden");
+        showToast("Script protected successfully!");
+      } catch (err) {
+        showToast("Error generating loadstring!", "error");
+      }
+    });
+
+    // Copy loadstring
+    document.getElementById("copyBtn").addEventListener("click", () => {
+      const scriptLink = document.getElementById("scriptLink");
+      scriptLink.select();
+      document.execCommand("copy");
+      showToast("Loadstring copied to clipboard!");
+    });
+  </script>
+</body>
+</html>
