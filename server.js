@@ -1,19 +1,26 @@
-const express = require("express");
-const hbs = require("hbs");
-const http = require("http");
-const socketIo = require("socket.io");
-const bodyParser = require("body-parser");
-const crypto = require("crypto");
-const fs = require("fs").promises;
-const path = require("path");
-const helmet = require("helmet");
-const compression = require("compression");
-const cors = require("cors");
-require("dotenv").config();
+import express from "express";
+import hbs from "hbs";
+import http from "http";
+import { Server } from "socket.io";
+import bodyParser from "body-parser";
+import crypto from "crypto";
+import fs from "fs/promises";
+import path from "path";
+import helmet from "helmet";
+import compression from "compression";
+import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
+const io = new Server(server, {
   cors: {
     origin: process.env.NODE_ENV === "production" ? false : "*",
     methods: ["GET", "POST"]
@@ -457,3 +464,5 @@ async function startServer() {
 }
 
 startServer();
+
+
