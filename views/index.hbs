@@ -1,47 +1,8 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KULTHX SAFEME</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
@@ -61,17 +22,22 @@
     .toast.hide {
       animation: slideOut 0.3s ease-out forwards;
     }
+
+    /* ✨ حل مشكلة النص الغامق في القائمة */
+    #sidebar a {
+      color: white !important;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-blue-900 text-white font-sans min-h-screen">
-  <!-- Toast Notification Container -->
+  <!-- Toast Notification -->
   <div id="toast" class="fixed top-4 right-4 z-50 hidden bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
     <span id="toastMessage"></span>
   </div>
 
-  <!-- Sidebar Toggle Button -->
+  <!-- Sidebar Toggle -->
   <button id="sidebarToggle" class="fixed top-4 left-4 z-50 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-transform duration-200 hover:scale-105">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
     </svg>
   </button>
@@ -88,12 +54,14 @@
     </div>
   </div>
 
+  <!-- Header -->
   <header class="bg-blue-800/50 backdrop-blur-md p-6 shadow-lg">
     <nav class="flex justify-center items-center max-w-7xl mx-auto">
       <h1 class="text-3xl font-extrabold text-blue-400 tracking-tight">🔒 KULTHX SAFEME</h1>
     </nav>
   </header>
 
+  <!-- Main -->
   <main class="max-w-7xl mx-auto p-8">
     <section class="text-center py-16 bg-gray-800/50 rounded-2xl shadow-xl">
       <h2 class="text-4xl font-bold mb-6 text-blue-300">Protect Your Roblox Scripts</h2>
@@ -133,33 +101,32 @@
     </section>
   </main>
 
+  <!-- Footer -->
   <footer class="bg-blue-800/50 backdrop-blur-md p-6 text-center">
     <p class="text-lg text-gray-300">© 2025 KULTHX SAFEME | All Rights Reserved ✨</p>
     <p class="mt-2 text-sm text-gray-400">👥 <span class="font-semibold">Online Users:</span> <span id="onlineUsers" class="bg-blue-600 text-white px-3 py-1 rounded-full">0</span></p>
   </footer>
 
   <script>
-    // Generate or retrieve user ID
+    // User ID
     let userId = localStorage.getItem("userId");
     if (!userId) {
       userId = crypto.randomUUID();
       localStorage.setItem("userId", userId);
     }
 
-    // Socket.IO for online users
+    // Socket.IO: Online users
     const socket = io();
     socket.on("onlineUsers", (count) => {
       document.getElementById("onlineUsers").textContent = count;
     });
 
     // Sidebar toggle
-    const sidebar = document.getElementById("sidebar");
-    const sidebarToggle = document.getElementById("sidebarToggle");
-    sidebarToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("-translate-x-full");
+    document.getElementById("sidebarToggle").addEventListener("click", () => {
+      document.getElementById("sidebar").classList.toggle("-translate-x-full");
     });
 
-    // Toast notification function
+    // Toast notification
     function showToast(message, type = "success") {
       const toast = document.getElementById("toast");
       const toastMessage = document.getElementById("toastMessage");
@@ -172,13 +139,10 @@
       }, 3000);
     }
 
-    // Protect script
+    // Protect Script
     document.getElementById("protectBtn").addEventListener("click", async () => {
       const script = document.getElementById("scriptInput").value;
-      if (!script) {
-        showToast("Please enter a script!", "error");
-        return;
-      }
+      if (!script) return showToast("Please enter a script!", "error");
 
       try {
         const response = await fetch("/generate", {
@@ -187,31 +151,24 @@
           body: JSON.stringify({ script, userId })
         });
         const data = await response.json();
+
         if (data.error) {
           showToast(data.error, "error");
-          if (data.loadstring) {
-            const resultDiv = document.getElementById("result");
-            const scriptLink = document.getElementById("scriptLink");
-            scriptLink.value = data.loadstring;
-            resultDiv.classList.remove("hidden");
-          }
           return;
         }
 
-        const resultDiv = document.getElementById("result");
-        const scriptLink = document.getElementById("scriptLink");
-        scriptLink.value = data.loadstring;
-        resultDiv.classList.remove("hidden");
+        document.getElementById("scriptLink").value = data.loadstring;
+        document.getElementById("result").classList.remove("hidden");
         showToast("Script protected successfully!");
       } catch (err) {
         showToast("Error generating loadstring!", "error");
       }
     });
 
-    // Copy loadstring
+    // Copy button
     document.getElementById("copyBtn").addEventListener("click", () => {
-      const scriptLink = document.getElementById("scriptLink");
-      scriptLink.select();
+      const input = document.getElementById("scriptLink");
+      input.select();
       document.execCommand("copy");
       showToast("Loadstring copied to clipboard!");
     });
