@@ -1,0 +1,36 @@
+name: Deploy to Koyeb
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Deploy to Koyeb
+      uses: koyeb/action-deploy@v1
+      with:
+        api_token: ${{ secrets.KOYEB_API_TOKEN }}
+        app_name: kulthx-safeme
+        branch: main
+        build_command: npm install
+        run_command: node server.js
+        environment_variables: |
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
+
+

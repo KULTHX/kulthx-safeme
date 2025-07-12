@@ -3,8 +3,6 @@ import http from "http";
 import { Server } from "socket.io";
 import bodyParser from "body-parser";
 import crypto from "crypto";
-import fs from "fs/promises";
-import path from "path";
 import helmet from "helmet";
 import compression from "compression";
 import cors from "cors";
@@ -13,6 +11,8 @@ dotenv.config();
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+
+import { saveScript, getScript, getAllScripts, deleteScript } from './supabase-db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -64,15 +64,13 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "10kb" }));
 const CONFIG = {
   PORT: process.env.PORT || 5000,
   HOST: process.env.HOST || "0.0.0.0",
-  DB_FILE: process.env.DB_FILE || "data/scripts.json",
   MAX_SCRIPT_LENGTH: parseInt(process.env.MAX_SCRIPT_LENGTH) || 50000,
   MAX_SCRIPTS_PER_USER: parseInt(process.env.MAX_SCRIPTS_PER_USER) || 50,
   RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000,
   RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100
 };
 
-// In-memory database
-let scriptDB = {};
+// In-memory database (for rate limiting only)
 let userRequestCounts = new Map();
 
 // Rate limiting
@@ -88,52 +86,13 @@ function rateLimit(req, res, next) {
   const requests = userRequestCounts.get(userIP);
   const recentRequests = requests.filter(time => time > windowStart);
   
-  if (recentRequests.length >= CONFIG.RATE_LIMIT_MAX_REQUESTS) {
+  if (recentRequests.length >= CONFIG.MAX_RATE_LIMIT_REQUESTS) {
     return res.status(429).json({ error: "Too many requests. Please try again later." });
   }
   
   recentRequests.push(now);
   userRequestCounts.set(userIP, recentRequests);
   next();
-}
-
-// Database functions
-async function ensureDataDirectory() {
-  const dataDir = path.dirname(CONFIG.DB_FILE);
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-}
-
-async function loadScripts() {
-  try {
-    await ensureDataDirectory();
-    try {
-      await fs.access(CONFIG.DB_FILE);
-      const raw = await fs.readFile(CONFIG.DB_FILE, "utf8");
-      scriptDB = JSON.parse(raw);
-      console.log(`✅ Loaded ${Object.keys(scriptDB).length} scripts from database`);
-    } catch {
-      console.log("📁 Creating new database file");
-      scriptDB = {};
-    }
-  } catch (err) {
-    console.error("❌ Database load error:", err.message);
-    scriptDB = {};
-  }
-}
-
-async function saveScripts() {
-  try {
-    await ensureDataDirectory();
-    await fs.writeFile(CONFIG.DB_FILE, JSON.stringify(scriptDB, null, 2));
-    console.log("✅ Database saved successfully");
-  } catch (err) {
-    console.error("❌ Database save error:", err.message);
-    throw err;
-  }
 }
 
 // Input validation
@@ -164,21 +123,21 @@ function validateUserId(userId) {
 app.get("/", (req, res) => {
   res.render("index", {
     title: "KULTHX SAFEME - حماية نصوص Roblox",
-    scriptCount: Object.keys(scriptDB).length
+    scriptCount: 0 // Will be updated dynamically by client-side
   });
 });
 
 app.get("/real-home", (req, res) => {
   res.render("index", {
     title: "KULTHX SAFEME - حماية نصوص Roblox",
-    scriptCount: Object.keys(scriptDB).length
+    scriptCount: 0 // Will be updated dynamically by client-side
   });
 });
 
 app.get("/my-scripts", (req, res) => {
   res.render("index", {
     title: "KULTHX SAFEME - حماية نصوص Roblox",
-    scriptCount: Object.keys(scriptDB).length
+    scriptCount: 0 // Will be updated dynamically by client-side
   });
 });
 
@@ -198,7 +157,8 @@ app.post("/generate", rateLimit, async (req, res) => {
     }
 
     // Check user script limit
-    const userScriptCount = Object.values(scriptDB).filter(s => s.userId === userId).length;
+    const allUserScripts = await getAllScripts();
+    const userScriptCount = allUserScripts.filter(s => s.userId === userId).length;
     if (userScriptCount >= CONFIG.MAX_SCRIPTS_PER_USER) {
       return res.status(400).json({ 
         error: `Maximum ${CONFIG.MAX_SCRIPTS_PER_USER} scripts per user allowed` 
@@ -209,13 +169,13 @@ app.post("/generate", rateLimit, async (req, res) => {
     const normalizedScript = script.trim().replace(/\s+/g, " ");
     
     // Check for duplicate script by same user
-    const existingScript = Object.entries(scriptDB).find(
-      ([_, data]) => data.userId === userId && 
+    const existingScript = allUserScripts.find(
+      (data) => data.userId === userId && 
         data.script.trim().replace(/\s+/g, " ") === normalizedScript
     );
     
     if (existingScript) {
-      const [id] = existingScript;
+      const id = existingScript.id;
       const url = `${req.protocol}://${req.get("host")}/script.lua?id=${id}`;
       return res.status(400).json({
         error: "This script is already protected!",
@@ -228,7 +188,8 @@ app.post("/generate", rateLimit, async (req, res) => {
     const id = crypto.randomBytes(16).toString("hex");
     
     // Store script
-    scriptDB[id] = {
+    const newScriptData = {
+      id,
       script: script.trim(),
       userId,
       createdAt: new Date().toISOString(),
@@ -236,8 +197,12 @@ app.post("/generate", rateLimit, async (req, res) => {
       lastAccessed: null
     };
 
-    await saveScripts();
+    const savedScript = await saveScript(newScriptData);
     
+    if (!savedScript) {
+      throw new Error("Failed to save script to Supabase");
+    }
+
     const url = `${req.protocol}://${req.get("host")}/script.lua?id=${id}`;
     const loadstring = `loadstring(game:HttpGet("${url}"))()`;
     
@@ -251,7 +216,9 @@ app.post("/generate", rateLimit, async (req, res) => {
 app.get("/script.lua", async (req, res) => {
   try {
     const id = req.query.id;
-    if (!id || !scriptDB[id]) {
+    const scriptData = await getScript(id);
+
+    if (!id || !scriptData) {
       return res.status(404).send("-- Invalid or expired script link!");
     }
 
@@ -264,13 +231,12 @@ app.get("/script.lua", async (req, res) => {
     }
 
     // Update access statistics
-    scriptDB[id].accessCount = (scriptDB[id].accessCount || 0) + 1;
-    scriptDB[id].lastAccessed = new Date().toISOString();
-    
-    // Save updated stats (async, don't wait)
-    saveScripts().catch(err => console.error("Save error:", err));
+    // Note: Supabase update logic would go here if needed, for now just serve
+    // scriptData.accessCount = (scriptData.accessCount || 0) + 1;
+    // scriptData.lastAccessed = new Date().toISOString();
+    // await updateScript(scriptData.id, { accessCount: scriptData.accessCount, lastAccessed: scriptData.lastAccessed });
 
-    res.type("text/plain").send(scriptDB[id].script);
+    res.type("text/plain").send(scriptData.script);
   } catch (err) {
     console.error("❌ Script fetch error:", err);
     res.status(500).send("-- Server error");
@@ -286,15 +252,16 @@ app.post("/my-scripts", async (req, res) => {
       return res.status(400).json({ error: userIdError });
     }
 
-    const userScripts = Object.entries(scriptDB)
-      .filter(([_, script]) => script.userId === userId)
-      .map(([id, script]) => ({
-        id,
+    const allUserScripts = await getAllScripts();
+    const userScripts = allUserScripts
+      .filter(script => script.userId === userId)
+      .map(script => ({
+        id: script.id,
         script: script.script,
         createdAt: script.createdAt,
         accessCount: script.accessCount || 0,
         lastAccessed: script.lastAccessed,
-        loadstring: `loadstring(game:HttpGet("${req.protocol}://${req.get("host")}/script.lua?id=${id}"))()`
+        loadstring: `loadstring(game:HttpGet("${req.protocol}://${req.get("host")}/script.lua?id=${script.id}"))()`
       }))
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -310,11 +277,13 @@ app.post("/my-scripts/:id", async (req, res) => {
     const { id } = req.params;
     const { script, userId } = req.body;
     
-    if (!id || !scriptDB[id]) {
+    const existingScript = await getScript(id);
+
+    if (!id || !existingScript) {
       return res.status(404).json({ error: "Script not found" });
     }
     
-    if (scriptDB[id].userId !== userId) {
+    if (existingScript.userId !== userId) {
       return res.status(403).json({ error: "Unauthorized access" });
     }
     
@@ -324,21 +293,29 @@ app.post("/my-scripts/:id", async (req, res) => {
     }
 
     // Check for duplicate script by same user
+    const allUserScripts = await getAllScripts();
     const normalizedScript = script.trim().replace(/\s+/g, " ");
-    const existingScript = Object.entries(scriptDB).find(
-      ([otherId, data]) => otherId !== id && 
+    const duplicateScript = allUserScripts.find(
+      (data) => data.id !== id && 
         data.userId === userId && 
         data.script.trim().replace(/\s+/g, " ") === normalizedScript
     );
     
-    if (existingScript) {
+    if (duplicateScript) {
       return res.status(400).json({ error: "This script is already protected by you!" });
     }
 
-    scriptDB[id].script = script.trim();
-    scriptDB[id].updatedAt = new Date().toISOString();
-    
-    await saveScripts();
+    // Update script in Supabase
+    const { data, error } = await supabase
+      .from("scripts")
+      .update({ script: script.trim(), updatedAt: new Date().toISOString() })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error updating script:", error);
+      return res.status(500).json({ error: "Failed to update script" });
+    }
+
     res.json({ message: "Script updated successfully" });
   } catch (err) {
     console.error("❌ Update script error:", err);
@@ -351,16 +328,21 @@ app.delete("/my-scripts/:id", async (req, res) => {
     const { id } = req.params;
     const { userId } = req.body;
     
-    if (!id || !scriptDB[id]) {
+    const existingScript = await getScript(id);
+
+    if (!id || !existingScript) {
       return res.status(404).json({ error: "Script not found" });
     }
     
-    if (scriptDB[id].userId !== userId) {
+    if (existingScript.userId !== userId) {
       return res.status(403).json({ error: "Unauthorized access" });
     }
 
-    delete scriptDB[id];
-    await saveScripts();
+    const deleted = await deleteScript(id);
+    if (!deleted) {
+      throw new Error("Failed to delete script from Supabase");
+    }
+
     res.json({ message: "Script deleted successfully" });
   } catch (err) {
     console.error("❌ Delete script error:", err);
@@ -369,14 +351,20 @@ app.delete("/my-scripts/:id", async (req, res) => {
 });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    scripts: Object.keys(scriptDB).length
-  });
+app.get("/health", async (req, res) => {
+  try {
+    const scriptCount = (await getAllScripts()).length;
+    res.status(200).json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      scripts: scriptCount
+    });
+  } catch (err) {
+    console.error("Health check error:", err);
+    res.status(500).json({ status: "unhealthy", error: err.message });
+  }
 });
 
 // 404 handler - redirect to main page
@@ -412,7 +400,6 @@ io.on("connection", (socket) => {
 // Graceful shutdown
 process.on("SIGTERM", async () => {
   console.log("📤 SIGTERM received, shutting down gracefully");
-  await saveScripts();
   server.close(() => {
     console.log("✅ Process terminated");
     process.exit(0);
@@ -421,7 +408,6 @@ process.on("SIGTERM", async () => {
 
 process.on("SIGINT", async () => {
   console.log("📤 SIGINT received, shutting down gracefully");
-  await saveScripts();
   server.close(() => {
     console.log("✅ Process terminated");
     process.exit(0);
@@ -431,13 +417,10 @@ process.on("SIGINT", async () => {
 // Initialize and start server
 async function startServer() {
   try {
-    await loadScripts();
-    
     server.listen(CONFIG.PORT, CONFIG.HOST, () => {
       console.log(`🚀 KULTHX SAFEME Server running on ${CONFIG.HOST}:${CONFIG.PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
-      console.log(`💾 Database: ${CONFIG.DB_FILE}`);
-      console.log(`📜 Loaded scripts: ${Object.keys(scriptDB).length}`);
+      console.log(`💾 Database: Supabase`);
     });
   } catch (err) {
     console.error("❌ Failed to start server:", err);
@@ -446,4 +429,5 @@ async function startServer() {
 }
 
 startServer();
+
 
