@@ -1,7 +1,0 @@
-{
-  "script": "print(\"Hello from GitHub API!\")\nprint(\"This script is stored in GitHub repository\")\ngame.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50",
-  "userId": "57cab9ef-2d4f-4d62-a6ce-c9ec5766579a",
-  "createdAt": "2025-07-12T21:35:59.306Z",
-  "accessCount": 0,
-  "lastAccessed": null
-}
