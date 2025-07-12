@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -45,7 +6,49 @@
   <title>My Scripts - KULTHX SAFEME</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
   <style>
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+
+    body {
+      background: linear-gradient(135deg, theme("colors.darkPrimary") 0%, theme("colors.darkSecondary") 100%);
+      font-family: "Inter", sans-serif;
+      color: theme("colors.textLight");
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3 {
+      font-family: "Montserrat", sans-serif;
+    }
+
+    .glass-card {
+      background: theme("colors.glassMorphism");
+      border: 1px solid theme("colors.glassBorder");
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .gradient-text {
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      background-image: linear-gradient(to right, theme("colors.gradientStart"), theme("colors.gradientEnd"));
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, theme("colors.buttonPrimary"), theme("colors.gradientEnd"));
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
     /* Custom animations for toast notifications and modal */
     @keyframes slideIn {
       from { transform: translateY(-100%); opacity: 0; }
@@ -70,7 +73,7 @@
     }
   </style>
 </head>
-<body class="text-white font-sans min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+<body>
   <!-- Toast Notification Container -->
   <div id="toast" class="fixed top-4 right-4 z-50 hidden bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
     <span id="toastMessage"></span>
@@ -78,12 +81,12 @@
 
   <!-- Edit Modal -->
   <div id="editModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50 modal">
-    <div class="bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl">
-      <h3 class="text-xl font-semibold text-blue-400 mb-4">Edit Script</h3>
-      <textarea id="editScriptInput" rows="6" class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+    <div class="glass-card p-6 rounded-lg shadow-xl w-full max-w-2xl">
+      <h3 class="text-xl font-semibold gradient-text mb-4">Edit Script</h3>
+      <textarea id="editScriptInput" rows="6" class="w-full p-4 bg-darkSecondary/80 border border-glassBorder rounded-lg text-textLight focus:ring-2 focus:ring-gradientStart focus:border-gradientEnd"></textarea>
       <div class="flex justify-end space-x-3 mt-4">
         <button id="cancelEdit" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg">Cancel</button>
-        <button id="saveEdit" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg">Save</button>
+        <button id="saveEdit" class="btn-primary text-white py-2 px-4 rounded-lg">Save</button>
       </div>
     </div>
   </div>
@@ -96,48 +99,47 @@
   </button>
 
   <!-- Sidebar -->
-  <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gray-900/95 backdrop-blur-xl transform -translate-x-full transition-transform duration-300 ease-in-out z-40 shadow-2xl border-r border-gray-700">
+  <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-darkPrimary/95 glass-card transform -translate-x-full transition-transform duration-300 ease-in-out z-40 shadow-2xl border-r border-glassBorder">
     <div class="p-6">
-      <h2 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">KULTHX SAFEME</h2>
+      <h2 class="text-2xl font-display font-bold gradient-text">KULTHX SAFEME</h2>
       <ul class="mt-8 space-y-4">
-        <li><a href="/real-home" class="block text-lg hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-blue-600/30 px-4 py-3 rounded-lg transition-all duration-200 border border-transparent hover:border-purple-500/30">🏠 الرئيسية</a></li>
-        <li><a href="/my-scripts" class="block text-lg hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-blue-600/30 px-4 py-3 rounded-lg transition-all duration-200 border border-transparent hover:border-purple-500/30">📜 نصوصي</a></li>
-        <li><a href="/real-home#about" class="block text-lg hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-blue-600/30 px-4 py-3 rounded-lg transition-all duration-200 border border-transparent hover:border-purple-500/30">ℹ حول</a></li>
+        <li><a href="/real-home" class="block text-lg hover:bg-darkAccent px-4 py-3 rounded-md transition-all duration-200">🏠 الرئيسية</a></li>
+        <li><a href="/my-scripts" class="block text-lg hover:bg-darkAccent px-4 py-3 rounded-md transition-all duration-200">📜 نصوصي</a></li>
+        <li><a href="/real-home#about" class="block text-lg hover:bg-darkAccent px-4 py-3 rounded-md transition-all duration-200">ℹ حول</a></li>
       </ul>
     </div>
   </div>
-  <header class="bg-gray-900/80 backdrop-blur-xl p-6 shadow-2xl border-b border-gray-700">
+
+  <header class="bg-darkPrimary/80 glass-card p-6 shadow-lg border-b border-glassBorder">
     <nav class="flex justify-end items-center max-w-7xl mx-auto">
-      <h1 class="text-4xl font-extrabold bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent tracking-tight">🔒 KULTHX SAFEME</h1>
-    </nav>
-  </header>cyan-400 bg-clip-text text-transparent tracking-tight">🔒 KULTHX SAFEME</h1>
+      <h1 class="text-4xl font-display font-extrabold gradient-text tracking-tight">🔒 KULTHX SAFEME</h1>
     </nav>
   </header>
 
-  <main class="max-w-7xl mx-auto p-8">
+  <main class="flex-grow max-w-7xl mx-auto p-8">
     <section class="py-16">
-      <h2 class="text-4xl font-bold mb-8 text-center text-blue-300">📜 My Protected Scripts</h2>
+      <h2 class="text-4xl font-display font-bold mb-8 text-center gradient-text">📜 My Protected Scripts</h2>
       <div id="scriptsList" class="space-y-6">
         <!-- Scripts will be loaded here -->
       </div>
     </section>
   </main>
 
-  <footer class="bg-gray-900/90 backdrop-blur-xl p-8 text-center border-t border-gray-700/50">
+  <footer class="bg-darkPrimary/90 glass-card p-8 text-center border-t border-glassBorder mt-auto">
     <div class="max-w-4xl mx-auto">
       <div class="mb-6">
-        <h3 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">KULTHX SAFEME</h3>
-        <p class="text-lg text-gray-300">© 2025 جميع الحقوق محفوظة ✨</p>
+        <h3 class="text-2xl font-display font-bold gradient-text mb-2">KULTHX SAFEME</h3>
+        <p class="text-lg text-textLight">© 2025 جميع الحقوق محفوظة ✨</p>
       </div>
       
       <div class="flex justify-center items-center space-x-4 mb-4">
-        <div class="bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-sm rounded-full px-6 py-3 border border-purple-500/30">
-          <span class="text-sm text-gray-400">👥 المستخدمون المتصلون:</span>
-          <span id="onlineUsers" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-1 rounded-full ml-2 font-semibold">0</span>
+        <div class="glass-card rounded-full px-6 py-3">
+          <span class="text-sm text-textMuted">👥 المستخدمون المتصلون:</span>
+          <span id="onlineUsers" class="bg-gradient-to-r from-gradientStart to-gradientEnd text-white px-4 py-1 rounded-full ml-2 font-semibold">0</span>
         </div>
       </div>
       
-      <div class="text-sm text-gray-500">
+      <div class="text-sm text-textMuted">
         <p>منصة آمنة وموثوقة لحماية نصوص Roblox</p>
       </div>
     </div>
@@ -194,22 +196,25 @@
         const scriptsList = document.getElementById("scriptsList");
         scriptsList.innerHTML = "";
         if (scripts.length === 0) {
-          scriptsList.innerHTML = '<p class="text-center text-gray-400">No scripts found.</p>';
+          scriptsList.innerHTML = 
+            `<div class="glass-card p-6 rounded-lg shadow-xl text-center">
+              <p class="text-textMuted">No scripts found. Protect your first script on the <a href="/real-home" class="gradient-text font-semibold hover:underline">home page</a>.</p>
+            </div>`;
           return;
         }
 
         scripts.forEach(script => {
           const scriptDiv = document.createElement("div");
-          scriptDiv.className = "bg-gray-800/50 p-6 rounded-lg shadow-md";
+          scriptDiv.className = "glass-card p-6 rounded-lg shadow-xl";
           scriptDiv.innerHTML = `
-            <p class="font-semibold text-blue-400">Loadstring:</p>
-            <input type="text" value="${script.loadstring.replace(/"/g, "&quot;")}" readonly class="w-full p-3 bg-gray-700/50 border border-gray-600 rounded-lg mt-1 text-gray-200 loadstring-input">
-            <p class="mt-3"><span class="font-semibold text-blue-400">Created:</span> ${new Date(script.createdAt).toLocaleString()}</p>
-            <textarea rows="4" class="w-full p-3 mt-3 bg-gray-700/50 border border-gray-600 rounded-lg text-gray-200 script-content" readonly>${script.script.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</textarea>
-            <div class="flex space-x-3 mt-4">
-              <button class="edit-btn bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-md transition-transform hover:scale-105" data-script-id="${script.id}">✏️ Edit</button>
+            <p class="font-semibold gradient-text">Loadstring:</p>
+            <input type="text" value="${script.loadstring.replace(/"/g, "&quot;")}" readonly class="w-full p-3 bg-darkSecondary/80 border border-glassBorder rounded-lg mt-1 text-textLight loadstring-input font-mono text-sm">
+            <p class="mt-3 text-textMuted"><span class="font-semibold gradient-text">Created:</span> ${new Date(script.createdAt).toLocaleString()}</p>
+            <textarea rows="4" class="w-full p-3 mt-3 bg-darkSecondary/80 border border-glassBorder rounded-lg text-textLight script-content font-mono text-sm" readonly>${script.script.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</textarea>
+            <div class="flex flex-wrap gap-3 mt-4">
+              <button class="edit-btn btn-primary text-white py-2 px-4 rounded-lg shadow-md" data-script-id="${script.id}">✏️ Edit</button>
               <button class="delete-btn bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg shadow-md transition-transform hover:scale-105" data-script-id="${script.id}">🗑️ Delete</button>
-              <button class="copy-btn bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-md transition-transform hover:scale-105">📋 Copy Loadstring</button>
+              <button class="copy-btn btn-primary text-white py-2 px-4 rounded-lg shadow-md" data-loadstring="${script.loadstring.replace(/"/g, "&quot;")}">📋 Copy Loadstring</button>
             </div>
           `;
           scriptsList.appendChild(scriptDiv);
@@ -219,7 +224,7 @@
         document.querySelectorAll(".edit-btn").forEach(button => {
           button.addEventListener("click", () => {
             const id = button.dataset.scriptId;
-            const scriptContent = button.closest("div").querySelector(".script-content").value;
+            const scriptContent = button.closest(".glass-card").querySelector(".script-content").value;
             console.log(`Opening edit modal for script ID: ${id}`);
             openEditModal(id, scriptContent);
           });
@@ -235,7 +240,7 @@
 
         document.querySelectorAll(".copy-btn").forEach(button => {
           button.addEventListener("click", () => {
-            const loadstring = button.closest("div").querySelector(".loadstring-input").value;
+            const loadstring = button.dataset.loadstring;
             console.log(`Copying loadstring: ${loadstring}`);
             copyLoadstring(loadstring);
           });
@@ -341,3 +346,5 @@
   </script>
 </body>
 </html>
+
+

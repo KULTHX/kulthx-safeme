@@ -2,65 +2,33 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
+  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}", "./views/**/*.hbs"],
   theme: {
     extend: {
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+      fontFamily: {
+        sans: ["Inter", "sans-serif"], // Using Inter font for a modern look
+        display: ["Montserrat", "sans-serif"], // A more expressive font for headings
       },
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        card: {
-          DEFAULT: "var(--card)",
-          foreground: "var(--card-foreground)",
-        },
-        popover: {
-          DEFAULT: "var(--popover)",
-          foreground: "var(--popover-foreground)",
-        },
-        primary: {
-          DEFAULT: "var(--primary)",
-          foreground: "var(--primary-foreground)",
-        },
-        secondary: {
-          DEFAULT: "var(--secondary)",
-          foreground: "var(--secondary-foreground)",
-        },
-        muted: {
-          DEFAULT: "var(--muted)",
-          foreground: "var(--muted-foreground)",
-        },
-        accent: {
-          DEFAULT: "var(--accent)",
-          foreground: "var(--accent-foreground)",
-        },
-        destructive: {
-          DEFAULT: "var(--destructive)",
-          foreground: "var(--destructive-foreground)",
-        },
-        border: "var(--border)",
-        input: "var(--input)",
-        ring: "var(--ring)",
-        chart: {
-          "1": "var(--chart-1)",
-          "2": "var(--chart-2)",
-          "3": "var(--chart-3)",
-          "4": "var(--chart-4)",
-          "5": "var(--chart-5)",
-        },
-        sidebar: {
-          DEFAULT: "var(--sidebar-background)",
-          foreground: "var(--sidebar-foreground)",
-          primary: "var(--sidebar-primary)",
-          "primary-foreground": "var(--sidebar-primary-foreground)",
-          accent: "var(--sidebar-accent)",
-          "accent-foreground": "var(--sidebar-accent-foreground)",
-          border: "var(--sidebar-border)",
-          ring: "var(--sidebar-ring)",
-        },
+        // Modern Dark Theme Palette
+        darkPrimary: "#1a1a2e", // Deep blue-black
+        darkSecondary: "#16213e", // Slightly lighter blue-black
+        darkAccent: "#0f3460", // Darker blue for accents
+        textLight: "#e0e0e0", // Light gray for main text
+        textMuted: "#a0a0a0", // Muted gray for secondary text
+        gradientStart: "#8a2be2", // Blue Violet
+        gradientEnd: "#4169e1", // Royal Blue
+        buttonPrimary: "#6a0dad", // Darker purple for buttons
+        buttonSecondary: "#483d8b", // Slate Blue for secondary buttons
+        borderDark: "#33334d", // Dark border color
+        cardBackground: "#1e1e3f", // Card background color
+        glassMorphism: "rgba(255, 255, 255, 0.05)", // For glass effect
+        glassBorder: "rgba(255, 255, 255, 0.1)", // For glass effect border
+      },
+      borderRadius: {
+        lg: "1rem",
+        md: "0.75rem",
+        sm: "0.5rem",
       },
       keyframes: {
         "accordion-down": {
@@ -88,3 +56,5 @@ export default {
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;
+
+
