@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +18,6 @@
 
     .youtube-header {
       background-color: #212121;
-      border-bottom: 1px solid #303030;
     }
 
     .youtube-sidebar {
@@ -49,6 +48,32 @@
       background-color: #aa0000;
     }
 
+    .youtube-button-secondary {
+      background-color: #3f3f3f;
+      color: white;
+      border: none;
+      border-radius: 18px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .youtube-button-secondary:hover {
+      background-color: #4f4f4f;
+    }
+
+    .youtube-button-danger {
+      background-color: #cc0000;
+      color: white;
+      border: none;
+      border-radius: 18px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .youtube-button-danger:hover {
+      background-color: #aa0000;
+    }
+
     .youtube-input {
       background-color: #121212;
       border: 1px solid #303030;
@@ -58,8 +83,8 @@
 
     .youtube-input:focus {
       outline: none;
-      border-color: #065fd4;
-      box-shadow: 0 0 0 1px #065fd4;
+      border-color: #4a4a4a;
+      box-shadow: none;
     }
 
     .youtube-text-secondary {
@@ -93,6 +118,12 @@
       border-radius: 10px;
       margin: 0 12px;
       transition: background-color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .sidebar-item:focus {
+      outline: none;
+      box-shadow: none;
     }
 
     .sidebar-item:hover {
@@ -130,6 +161,46 @@
       background-color: #ff4444;
     }
 
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background-color: #1a1a1a;
+      border: 1px solid #303030;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .page-section {
+      display: none;
+    }
+
+    .page-section.active {
+      display: block;
+    }
+
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
@@ -146,6 +217,23 @@
     <span id="toastMessage"></span>
   </div>
 
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <h3 class="text-xl font-medium youtube-text-primary mb-4">تعديل النص</h3>
+      <textarea 
+        id="editScriptInput" 
+        rows="6" 
+        class="youtube-input w-full p-3 text-sm resize-none mb-4"
+        placeholder="أدخل النص المحدث هنا..."
+      ></textarea>
+      <div class="flex justify-end space-x-3">
+        <button id="cancelEdit" class="youtube-button-secondary px-4 py-2 text-sm">إلغاء</button>
+        <button id="saveEdit" class="youtube-button px-4 py-2 text-sm">حفظ</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="youtube-header fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-4">
     <button id="hamburgerBtn" class="hamburger-btn mr-4">
@@ -155,110 +243,133 @@
     </button>
     
     <div class="flex items-center flex-1">
-      <h1 class="text-xl font-medium youtube-text-primary">🔒 KULTHX SAFEME</h1>
+      <h1 class="text-xl font-medium text-white">KULTHX SAFEME</h1>
     </div>
   </header>
 
   <!-- Sidebar -->
   <nav id="sidebar" class="sidebar youtube-sidebar fixed left-0 top-14 bottom-0 w-60 z-40 transition-transform duration-300 overflow-y-auto">
     <div class="py-3">
-      <a href="/real-home" class="sidebar-item active">
+      <div class="sidebar-item active" data-page="home">
         <span class="mr-6">🏠</span>
         <span>الرئيسية</span>
-      </a>
-      <a href="/my-scripts" class="sidebar-item">
+      </div>
+      <div class="sidebar-item" data-page="scripts">
         <span class="mr-6">📜</span>
         <span>نصوصي</span>
-      </a>
-      <a href="#about" class="sidebar-item">
+      </div>
+      <div class="sidebar-item" data-page="about">
         <span class="mr-6">ℹ️</span>
         <span>حول</span>
-      </a>
+      </div>
     </div>
   </nav>
 
   <!-- Main Content -->
   <main class="pt-14 transition-all duration-300" id="mainContent">
-    <div class="max-w-6xl mx-auto p-4 md:p-6">
-      <!-- Hero Section -->
-      <div class="youtube-card p-6 md:p-8 mb-8">
-        <div class="text-center">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 youtube-text-primary">حماية نصوص Roblox</h2>
-          <p class="text-lg youtube-text-secondary mb-8 max-w-3xl mx-auto">قم بتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox!</p>
-          
-          <div class="max-w-4xl mx-auto mb-6">
-            <textarea 
-              id="scriptInput" 
-              rows="8" 
-              class="youtube-input w-full p-4 text-base resize-none"
-              placeholder="الصق نص Roblox الخاص بك هنا..."
-            ></textarea>
-          </div>
-          
-          <button id="protectBtn" class="youtube-button px-6 py-3 text-base font-medium">
-            🚀 احم نصك
-          </button>
-          
-          <div id="result" class="mt-8 hidden">
-            <div class="youtube-card p-6">
-              <p class="text-green-400 font-medium text-lg mb-4">✅ Loadstring النص المحمي:</p>
-              <div class="mb-4">
-                <input 
-                  id="scriptLink" 
-                  type="text" 
-                  readonly 
-                  class="youtube-input w-full p-3 text-sm font-mono"
-                >
+    
+    <!-- Home Page -->
+    <div id="homePage" class="page-section active">
+      <div class="max-w-6xl mx-auto p-4 md:p-6">
+        <!-- Hero Section -->
+        <div class="youtube-card p-6 md:p-8 mb-8">
+          <div class="text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 youtube-text-primary">حماية نصوص Roblox</h2>
+            <p class="text-lg youtube-text-secondary mb-8 max-w-3xl mx-auto">قم بتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox!</p>
+            
+            <div class="max-w-4xl mx-auto mb-6">
+              <textarea 
+                id="scriptInput" 
+                rows="8" 
+                class="youtube-input w-full p-4 text-base resize-none"
+                placeholder="الصق نص Roblox الخاص بك هنا..."
+              ></textarea>
+            </div>
+            
+            <button id="protectBtn" class="youtube-button px-6 py-3 text-base font-medium">
+              🚀 احم نصك
+            </button>
+            
+            <div id="result" class="mt-8 hidden">
+              <div class="youtube-card p-6">
+                <p class="text-green-400 font-medium text-lg mb-4">✅ Loadstring النص المحمي:</p>
+                <div class="mb-4">
+                  <input 
+                    id="scriptLink" 
+                    type="text" 
+                    readonly 
+                    class="youtube-input w-full p-3 text-sm font-mono"
+                  >
+                </div>
+                <button id="copyBtn" class="youtube-button px-4 py-2 text-sm">
+                  📋 نسخ Loadstring
+                </button>
               </div>
-              <button id="copyBtn" class="youtube-button px-4 py-2 text-sm">
-                📋 نسخ Loadstring
-              </button>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- About Section -->
-      <section id="about" class="mb-8">
-        <h2 class="text-2xl md:text-3xl font-bold mb-6 youtube-text-primary text-center">ℹ️ حول KULTHX SAFEME</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
-            <div class="text-center mb-4">
-              <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-xl">🛡️</span>
-              </div>
-              <h3 class="text-lg font-medium youtube-text-primary mb-3">ما هو KULTHX SAFEME؟</h3>
-            </div>
-            <p class="youtube-text-secondary text-sm leading-relaxed">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
-          </div>
-          
-          <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
-            <div class="text-center mb-4">
-              <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-xl">⚙️</span>
-              </div>
-              <h3 class="text-lg font-medium youtube-text-primary mb-3">كيف يعمل</h3>
-            </div>
-            <p class="youtube-text-secondary text-sm leading-relaxed">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
-          </div>
-          
-          <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
-            <div class="text-center mb-4">
-              <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-xl">⭐</span>
-              </div>
-              <h3 class="text-lg font-medium youtube-text-primary mb-3">لماذا تختارنا؟</h3>
-            </div>
-            <ul class="youtube-text-secondary text-sm space-y-2">
-              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تشفير قوي لحماية نصوصك</li>
-              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> واجهة حديثة وسهلة الاستخدام</li>
-              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> loadstring فريد وآمن لكل نص</li>
-              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تحديثات ودعم مستمر</li>
-            </ul>
-          </div>
-        </div>
-      </section>
     </div>
+
+    <!-- Scripts Page -->
+    <div id="scriptsPage" class="page-section">
+      <div class="max-w-6xl mx-auto p-4 md:p-6">
+        <div class="mb-8">
+          <h2 class="text-2xl md:text-3xl font-bold youtube-text-primary mb-2">📜 نصوصي المحمية</h2>
+          <p class="youtube-text-secondary">إدارة وتعديل النصوص المحمية الخاصة بك</p>
+        </div>
+
+        <div id="scriptsList" class="space-y-4">
+          <!-- Scripts will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="aboutPage" class="page-section">
+      <div class="max-w-6xl mx-auto p-4 md:p-6">
+        <section class="mb-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 youtube-text-primary text-center">ℹ️ حول KULTHX SAFEME</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+              <div class="text-center mb-4">
+                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span class="text-xl">🛡️</span>
+                </div>
+                <h3 class="text-lg font-medium youtube-text-primary mb-3">ما هو KULTHX SAFEME؟</h3>
+              </div>
+              <p class="youtube-text-secondary text-sm leading-relaxed">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
+            </div>
+            
+            <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+              <div class="text-center mb-4">
+                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span class="text-xl">⚙️</span>
+                </div>
+                <h3 class="text-lg font-medium youtube-text-primary mb-3">كيف يعمل</h3>
+              </div>
+              <p class="youtube-text-secondary text-sm leading-relaxed">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
+            </div>
+            
+            <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+              <div class="text-center mb-4">
+                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span class="text-xl">⭐</span>
+                </div>
+                <h3 class="text-lg font-medium youtube-text-primary mb-3">لماذا تختارنا؟</h3>
+              </div>
+              <ul class="youtube-text-secondary text-sm space-y-2">
+                <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تشفير قوي لحماية نصوصك</li>
+                <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> واجهة حديثة وسهلة الاستخدام</li>
+                <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> loadstring فريد وآمن لكل نص</li>
+                <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تحديثات ودعم مستمر</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
   </main>
 
   <!-- Footer -->
@@ -280,8 +391,39 @@
 
     // Socket.IO connection
     const socket = io();
-    socket.on("onlineUsers", (count) => {
-      // Online users count (not displayed)
+
+    // Page navigation
+    let currentPage = 'home';
+    
+    function showPage(pageId) {
+      // Hide all pages
+      document.querySelectorAll('.page-section').forEach(page => {
+        page.classList.remove('active');
+      });
+      
+      // Show selected page
+      document.getElementById(pageId + 'Page').classList.add('active');
+      
+      // Update sidebar active state
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+      
+      currentPage = pageId;
+      
+      // Load scripts if navigating to scripts page
+      if (pageId === 'scripts') {
+        loadScripts();
+      }
+    }
+
+    // Sidebar navigation
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const pageId = item.dataset.page;
+        showPage(pageId);
+      });
     });
 
     // Sidebar toggle
@@ -374,6 +516,206 @@
         scriptLink.select();
         document.execCommand("copy");
         showToast("تم نسخ Loadstring بنجاح!");
+      } 
+    });
+
+    // Load scripts
+    async function loadScripts() {
+      try {
+        const response = await fetch("/my-scripts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId })
+        });
+        
+        const scripts = await response.json();
+        
+        if (scripts.error) {
+          showToast(scripts.error, "error");
+          return;
+        }
+
+        const scriptsList = document.getElementById("scriptsList");
+        scriptsList.innerHTML = "";
+        
+        if (scripts.length === 0) {
+          scriptsList.innerHTML = `
+            <div class="youtube-card p-6 text-center">
+              <p class="youtube-text-secondary">لا توجد نصوص محمية. احم نصك الأول من <span class="text-red-500 hover:text-red-400 underline cursor-pointer" onclick="showPage('home')">الصفحة الرئيسية</span>.</p>
+            </div>
+          `;
+          return;
+        }
+
+        scripts.forEach(script => {
+          const scriptDiv = document.createElement("div");
+          scriptDiv.className = "youtube-card p-4 md:p-6";
+          scriptDiv.innerHTML = `
+            <div class="mb-4">
+              <p class="font-medium youtube-text-primary text-sm mb-2">Loadstring:</p>
+              <input 
+                type="text" 
+                value="${script.loadstring.replace(/"/g, "&quot;")}" 
+                readonly 
+                class="youtube-input w-full p-2 text-xs font-mono"
+              >
+            </div>
+            
+            <div class="mb-4">
+              <p class="youtube-text-secondary text-xs mb-2">
+                <span class="font-medium">تاريخ الإنشاء:</span> ${new Date(script.createdAt).toLocaleString()}
+              </p>
+              <textarea 
+                rows="4" 
+                class="youtube-input w-full p-2 text-xs font-mono resize-none" 
+                readonly
+              >${script.script.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</textarea>
+            </div>
+            
+            <div class="flex flex-wrap gap-2">
+              <button class="edit-btn youtube-button-secondary px-3 py-1.5 text-xs" data-script-id="${script.id}">
+                ✏️ تعديل
+              </button>
+              <button class="delete-btn youtube-button-danger px-3 py-1.5 text-xs" data-script-id="${script.id}">
+                🗑️ حذف
+              </button>
+              <button class="copy-btn youtube-button px-3 py-1.5 text-xs" data-loadstring="${script.loadstring.replace(/"/g, "&quot;")}">
+                📋 نسخ Loadstring
+              </button>
+            </div>
+          `;
+          scriptsList.appendChild(scriptDiv);
+        });
+
+        // Add event listeners
+        document.querySelectorAll(".edit-btn").forEach(button => {
+          button.addEventListener("click", () => {
+            const id = button.dataset.scriptId;
+            const scriptContent = button.closest(".youtube-card").querySelector("textarea").value;
+            openEditModal(id, scriptContent);
+          });
+        });
+
+        document.querySelectorAll(".delete-btn").forEach(button => {
+          button.addEventListener("click", () => {
+            const id = button.dataset.scriptId;
+            deleteScript(id);
+          });
+        });
+
+        document.querySelectorAll(".copy-btn").forEach(button => {
+          button.addEventListener("click", () => {
+            const loadstring = button.dataset.loadstring;
+            copyLoadstring(loadstring);
+          });
+        });
+      } catch (err) {
+        console.error("Error loading scripts:", err);
+        showToast("خطأ في تحميل النصوص!", "error");
+      }
+    }
+
+    // Edit modal handling
+    let currentEditId = null;
+    
+    function openEditModal(id, script) {
+      currentEditId = id;
+      const modal = document.getElementById("editModal");
+      const input = document.getElementById("editScriptInput");
+      input.value = script;
+      modal.classList.add("show");
+    }
+
+    document.getElementById("cancelEdit").addEventListener("click", () => {
+      document.getElementById("editModal").classList.remove("show");
+      currentEditId = null;
+    });
+
+    document.getElementById("saveEdit").addEventListener("click", async () => {
+      const newScript = document.getElementById("editScriptInput").value;
+      if (!newScript.trim()) {
+        showToast("النص لا يمكن أن يكون فارغاً!", "error");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/my-scripts/${currentEditId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ script: newScript, userId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          showToast(data.error, "error");
+          return;
+        }
+        
+        showToast(data.message);
+        document.getElementById("editModal").classList.remove("show");
+        currentEditId = null;
+        loadScripts();
+      } catch (err) {
+        console.error("Error updating script:", err);
+        showToast("خطأ في تحديث النص!", "error");
+      }
+    });
+
+    // Delete script
+    async function deleteScript(id) {
+      if (!confirm("هل أنت متأكد من حذف هذا النص؟")) return;
+
+      try {
+        const response = await fetch(`/my-scripts/${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          showToast(data.error, "error");
+          return;
+        }
+        
+        showToast(data.message);
+        loadScripts();
+      } catch (err) {
+        console.error("Error deleting script:", err);
+        showToast("خطأ في حذف النص!", "error");
+      }
+    }
+
+    // Copy loadstring
+    async function copyLoadstring(loadstring) {
+      try {
+        await navigator.clipboard.writeText(loadstring);
+        showToast("تم نسخ Loadstring بنجاح!");
+      } catch (err) {
+        console.error("Error copying loadstring:", err);
+        // Fallback for older browsers
+        const tempInput = document.createElement("input");
+        tempInput.value = loadstring;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        try {
+          document.execCommand("copy");
+          showToast("تم نسخ Loadstring بنجاح!");
+        } catch (e) {
+          showToast("فشل في نسخ Loadstring!", "error");
+        } finally {
+          document.body.removeChild(tempInput);
+        }
+      }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById("editModal").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) {
+        document.getElementById("editModal").classList.remove("show");
+        currentEditId = null;
       }
     });
 

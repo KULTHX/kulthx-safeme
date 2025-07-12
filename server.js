@@ -1,5 +1,4 @@
 import express from "express";
-import hbs from "hbs";
 import http from "http";
 import { Server } from "socket.io";
 import bodyParser from "body-parser";
@@ -53,15 +52,6 @@ app.use(cors({
 // View engine setup
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
-
-// Register Handlebars helpers
-hbs.registerHelper('json', function(context) {
-  return JSON.stringify(context);
-});
-
-hbs.registerHelper('eq', function(a, b) {
-  return a === b;
-});
 
 // Static files
 app.use(express.static(path.join(__dirname, "public")));
@@ -170,26 +160,25 @@ function validateUserId(userId) {
   return null;
 }
 
-// Routes
+// Routes - All routes now serve the single page
 app.get("/", (req, res) => {
-  res.render("loading", {
-    title: "KULTHX SAFEME - Loading",
-    layout: "layouts/main"
+  res.render("index", {
+    title: "KULTHX SAFEME - حماية نصوص Roblox",
+    scriptCount: Object.keys(scriptDB).length
   });
 });
 
 app.get("/real-home", (req, res) => {
   res.render("index", {
-    title: "KULTHX SAFEME - Home",
-    scriptCount: Object.keys(scriptDB).length,
-    layout: "layouts/main"
+    title: "KULTHX SAFEME - حماية نصوص Roblox",
+    scriptCount: Object.keys(scriptDB).length
   });
 });
 
 app.get("/my-scripts", (req, res) => {
-  res.render("my-scripts", {
-    title: "My Scripts - KULTHX SAFEME",
-    layout: "layouts/main"
+  res.render("index", {
+    title: "KULTHX SAFEME - حماية نصوص Roblox",
+    scriptCount: Object.keys(scriptDB).length
   });
 });
 
@@ -270,7 +259,7 @@ app.get("/script.lua", async (req, res) => {
     const userAgent = req.headers["user-agent"] || "";
     const isRoblox = userAgent.includes("Roblox") || userAgent.includes("HttpGet");
     
-    if (!isRoblox) { // Removed process.env.NODE_ENV === "production" to apply in all environments
+    if (!isRoblox) {
       return res.status(403).send("-- Access denied: This endpoint is for Roblox execution only");
     }
 
@@ -390,26 +379,19 @@ app.get("/health", (req, res) => {
   });
 });
 
-// 404 handler
+// 404 handler - redirect to main page
 app.use((req, res) => {
-  res.status(404).render("error", {
-    title: "Page Not Found - KULTHX SAFEME",
-    error: "404 - Page Not Found",
-    message: "The page you are looking for does not exist.",
-    layout: "layouts/main"
-  });
+  res.redirect('/');
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   console.error("❌ Unhandled error:", err);
-  res.status(500).render("error", {
-    title: "Server Error - KULTHX SAFEME",
+  res.status(500).json({
     error: "500 - Internal Server Error",
     message: process.env.NODE_ENV === "production" 
       ? "Something went wrong on our end."
-      : err.message,
-    layout: "layouts/main"
+      : err.message
   });
 });
 
@@ -464,5 +446,4 @@ async function startServer() {
 }
 
 startServer();
-
 

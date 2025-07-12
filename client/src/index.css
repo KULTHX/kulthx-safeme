@@ -5,7 +5,7 @@ html, body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #000000; /* Force black background */
+  background-color: #0f0f0f; /* Force black background */
   color: #e0e0e0; /* Light gray text for contrast */
   line-height: 1.6;
 }
@@ -20,10 +20,20 @@ code {
   box-sizing: border-box;
 }
 
-/* Improve focus states for accessibility */
-:focus-visible {
-  outline: 2px solid #6366f1; /* Indigo focus ring */
-  outline-offset: 2px;
+/* Ensure no outline on focus for all elements */
+*:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.youtube-header h1 {
+  color: #ffffff !important; /* Force white color */
+  background-image: none !important; /* Remove any background gradient */
+  -webkit-background-clip: unset !important; /* Reset background clip */
+  -webkit-text-fill-color: #ffffff !important; /* Force white text fill color */
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 

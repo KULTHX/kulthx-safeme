@@ -6,194 +6,272 @@
   <title>KULTHX SAFEME - حماية نصوص Roblox</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
-
     body {
-      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-      font-family: "Inter", sans-serif;
-      color: #e0e0e0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      background-color: #0f0f0f;
+      font-family: "Roboto", sans-serif;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
     }
 
-    h1, h2, h3 {
-      font-family: "Montserrat", sans-serif;
+    .youtube-header {
+      background-color: #212121;
+      border-bottom: none; /* Removed border-bottom */
     }
 
-    .glass-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+    .youtube-sidebar {
+      background-color: #212121;
+      border-right: 1px solid #303030;
     }
 
-    .gradient-text {
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .youtube-card {
+      background-color: #1a1a1a;
+      border: 1px solid #303030;
+      border-radius: 12px;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      transition: all 0.3s ease;
+    .youtube-card:hover {
+      background-color: #262626;
+    }
+
+    .youtube-button {
+      background-color: #cc0000;
+      color: white;
       border: none;
+      border-radius: 18px;
+      font-weight: 500;
+      transition: all 0.2s ease;
     }
 
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    .youtube-button:hover {
+      background-color: #aa0000;
     }
 
-    /* Custom animations for toast notifications */
-    @keyframes slideIn {
-      from { transform: translateY(-100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    .youtube-input {
+      background-color: #121212;
+      border: 1px solid #303030;
+      color: #ffffff;
+      border-radius: 2px;
     }
-    @keyframes slideOut {
-      from { transform: translateY(0); opacity: 1; }
-      to { transform: translateY(-100%); opacity: 0; }
+
+    .youtube-input:focus {
+      outline: none;
+      border-color: #4a4a4a; /* Changed from blue to a darker gray */
+      box-shadow: none; /* Removed box-shadow on focus */
     }
+
+    .youtube-text-secondary {
+      color: #aaaaaa;
+    }
+
+    .youtube-text-primary {
+      color: #ffffff;
+    }
+
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: #ffffff;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .hamburger-btn:hover {
+      background-color: #303030;
+    }
+
+    .sidebar-item {
+      color: #ffffff;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      border-radius: 10px;
+      margin: 0 12px;
+      transition: background-color 0.2s ease;
+    }
+
+    .sidebar-item:focus-visible {
+      outline: none; /* Remove outline for sidebar items */
+      box-shadow: none; /* Ensure no box-shadow on focus */
+    }
+
+    .sidebar-item:hover {
+      background-color: #303030;
+    }
+
+    .sidebar-item.active {
+      background-color: #303030;
+    }
+
     .toast {
-      animation: slideIn 0.3s ease-out forwards;
-    }
-    .toast.hide {
-      animation: slideOut 0.3s ease-out forwards;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      padding: 12px 16px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
     }
 
-    /* Remove focus outlines and borders */
-    input:focus, textarea:focus, button:focus {
-      outline: none !important;
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
-      border-color: rgba(255, 255, 255, 0.3) !important;
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    /* Mobile-specific styles */
+    .toast.success {
+      background-color: #00d084;
+    }
+
+    .toast.error {
+      background-color: #ff4444;
+    }
+
     @media (max-width: 768px) {
-      .mobile-text-sm { font-size: 0.875rem; }
-      .mobile-text-base { font-size: 1rem; }
-      .mobile-text-lg { font-size: 1.125rem; }
-      .mobile-text-xl { font-size: 1.25rem; }
-      .mobile-text-2xl { font-size: 1.5rem; }
-      .mobile-text-3xl { font-size: 1.875rem; }
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Toast Notification Container -->
-  <div id="toast" class="fixed top-4 right-4 z-50 hidden bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
     <span id="toastMessage"></span>
   </div>
 
-  <!-- Sidebar Toggle Button -->
-  <button id="sidebarToggle" class="fixed top-4 left-4 z-50 bg-white hover:bg-gray-100 text-gray-800 p-2 md:p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
-    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-    </svg>
-  </button>
-
-  <!-- Sidebar -->
-  <div id="sidebar" class="fixed top-0 left-0 h-full w-56 md:w-64 glass-card transform -translate-x-full transition-transform duration-300 ease-in-out z-40 shadow-2xl">
-    <div class="p-4 md:p-6">
-      <h2 class="text-lg md:text-2xl font-display font-bold gradient-text">KULTHX SAFEME</h2>
-      <ul class="mt-6 md:mt-8 space-y-3 md:space-y-4">
-        <li><a href="/real-home" class="block text-sm md:text-lg hover:bg-white/10 px-3 md:px-4 py-2 md:py-3 rounded-md transition-all duration-200 text-white">🏠 الرئيسية</a></li>
-        <li><a href="/my-scripts" class="block text-sm md:text-lg hover:bg-white/10 px-3 md:px-4 py-2 md:py-3 rounded-md transition-all duration-200 text-white">📜 نصوصي</a></li>
-        <li><a href="#about" class="block text-sm md:text-lg hover:bg-white/10 px-3 md:px-4 py-2 md:py-3 rounded-md transition-all duration-200 text-white">ℹ حول</a></li>
-      </ul>
+  <!-- Header -->
+  <header class="youtube-header fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-4">
+    <button id="hamburgerBtn" class="hamburger-btn mr-4">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+      </svg>
+    </button>
+    
+    <div class="flex items-center flex-1">
+      <h1 class="text-xl font-medium text-white" style="border: none !important; outline: none !important; box-shadow: none !important;">KULTHX SAFEME</h1>
     </div>
-  </div>
-
-  <header class="glass-card p-3 md:p-6 shadow-lg">
-    <nav class="flex justify-end items-center max-w-7xl mx-auto">
-      <h1 class="text-2xl md:text-4xl font-display font-extrabold gradient-text tracking-tight">🔒 KULTHX SAFEME</h1>
-    </nav>
   </header>
 
-  <main class="flex-grow max-w-7xl mx-auto p-4 md:p-8">
-    <section class="text-center py-12 md:py-20 glass-card rounded-lg shadow-xl">
-      <div class="mb-6 md:mb-8">
-        <h2 class="text-3xl md:text-5xl font-display font-bold mb-4 md:mb-6 gradient-text">حماية نصوص Roblox</h2>
-        <p class="text-base md:text-xl mb-6 md:mb-8 text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">قم بتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox!</p>
-      </div>
-      
-      <div class="flex justify-center mb-6 md:mb-8 px-4">
-        <div class="relative w-full max-w-4xl">
-          <textarea id="scriptInput" rows="6" class="w-full p-4 md:p-6 bg-black/20 border border-white/20 rounded-lg text-white placeholder-gray-400 text-sm md:text-lg resize-none" placeholder="الصق نص Roblox الخاص بك هنا..."></textarea>
-        </div>
-      </div>
-      
-      <button id="protectBtn" class="btn-primary text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg shadow-lg text-base md:text-lg">
-        🚀 احم نصك
-      </button>
-      
-      <div id="result" class="mt-6 md:mt-8 hidden px-4">
-        <div class="glass-card rounded-lg p-4 md:p-6 max-w-4xl mx-auto">
-          <p class="text-green-400 font-semibold text-base md:text-lg mb-3 md:mb-4">✅ Loadstring النص المحمي:</p>
-          <div class="relative">
-            <input id="scriptLink" type="text" readonly class="w-full p-3 md:p-4 bg-black/20 border border-white/20 rounded-lg text-white text-xs md:text-sm font-mono">
-          </div>
-          <button id="copyBtn" class="btn-primary mt-3 md:mt-4 text-white py-2 md:py-3 px-4 md:px-6 rounded-lg shadow-lg text-sm md:text-base">📋 نسخ Loadstring</button>
-        </div>
-      </div>
-    </section>
+  <!-- Sidebar -->
+  <nav id="sidebar" class="sidebar youtube-sidebar fixed left-0 top-14 bottom-0 w-60 z-40 transition-transform duration-300 overflow-y-auto">
+    <div class="py-3">
+      <a href="/real-home" class="sidebar-item active">
+        <span class="mr-6">🏠</span>
+        <span>الرئيسية</span>
+      </a>
+      <a href="/my-scripts" class="sidebar-item">
+        <span class="mr-6">📜</span>
+        <span>نصوصي</span>
+      </a>
+      <a href="#about" class="sidebar-item">
+        <span class="mr-6">ℹ️</span>
+        <span>حول</span>
+      </a>
+    </div>
+  </nav>
 
-    <section id="about" class="py-12 md:py-20">
-      <h2 class="text-3xl md:text-4xl font-display font-bold mb-8 md:mb-12 text-center gradient-text">ℹ حول KULTHX SAFEME</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 px-4">
-        <div class="glass-card p-6 md:p-8 rounded-lg shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="text-center mb-4 md:mb-6">
-            <div class="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-              <span class="text-xl md:text-2xl">🛡️</span>
-            </div>
-            <h3 class="text-lg md:text-2xl font-display font-semibold gradient-text">ما هو KULTHX SAFEME؟</h3>
+  <!-- Main Content -->
+  <main class="pt-14 transition-all duration-300" id="mainContent">
+    <div class="max-w-6xl mx-auto p-4 md:p-6">
+      <!-- Hero Section -->
+      <div class="youtube-card p-6 md:p-8 mb-8">
+        <div class="text-center">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 youtube-text-primary">حماية نصوص Roblox</h2>
+          <p class="text-lg youtube-text-secondary mb-8 max-w-3xl mx-auto">قم بتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox!</p>
+          
+          <div class="max-w-4xl mx-auto mb-6">
+            <textarea 
+              id="scriptInput" 
+              rows="8" 
+              class="youtube-input w-full p-4 text-base resize-none"
+              placeholder="الصق نص Roblox الخاص بك هنا..."
+            ></textarea>
           </div>
-          <p class="text-gray-300 leading-relaxed text-sm md:text-base">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
-        </div>
-        
-        <div class="glass-card p-6 md:p-8 rounded-lg shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="text-center mb-4 md:mb-6">
-            <div class="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-              <span class="text-xl md:text-2xl">⚙️</span>
+          
+          <button id="protectBtn" class="youtube-button px-6 py-3 text-base font-medium">
+            🚀 احم نصك
+          </button>
+          
+          <div id="result" class="mt-8 hidden">
+            <div class="youtube-card p-6">
+              <p class="text-green-400 font-medium text-lg mb-4">✅ Loadstring النص المحمي:</p>
+              <div class="mb-4">
+                <input 
+                  id="scriptLink" 
+                  type="text" 
+                  readonly 
+                  class="youtube-input w-full p-3 text-sm font-mono"
+                >
+              </div>
+              <button id="copyBtn" class="youtube-button px-4 py-2 text-sm">
+                📋 نسخ Loadstring
+              </button>
             </div>
-            <h3 class="text-lg md:text-2xl font-display font-semibold gradient-text">كيف يعمل</h3>
           </div>
-          <p class="text-gray-300 leading-relaxed text-sm md:text-base">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
-        </div>
-        
-        <div class="glass-card p-6 md:p-8 rounded-lg shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="text-center mb-4 md:mb-6">
-            <div class="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-              <span class="text-xl md:text-2xl">⭐</span>
-            </div>
-            <h3 class="text-lg md:text-2xl font-display font-semibold gradient-text">لماذا تختارنا؟</h3>
-          </div>
-          <ul class="text-gray-300 space-y-2 md:space-y-3 text-sm md:text-base">
-            <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تشفير قوي لحماية نصوصك</li>
-            <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> واجهة حديثة وسهلة الاستخدام</li>
-            <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> loadstring فريد وآمن لكل نص</li>
-            <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تحديثات ودعم مستمر</li>
-          </ul>
         </div>
       </div>
-    </section>
+
+      <!-- About Section -->
+      <section id="about" class="mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold mb-6 youtube-text-primary text-center">ℹ️ حول KULTHX SAFEME</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+            <div class="text-center mb-4">
+              <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-xl">🛡️</span>
+              </div>
+              <h3 class="text-lg font-medium youtube-text-primary mb-3">ما هو KULTHX SAFEME؟</h3>
+            </div>
+            <p class="youtube-text-secondary text-sm leading-relaxed">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
+          </div>
+          
+          <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+            <div class="text-center mb-4">
+              <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-xl">⚙️</span>
+              </div>
+              <h3 class="text-lg font-medium youtube-text-primary mb-3">كيف يعمل</h3>
+            </div>
+            <p class="youtube-text-secondary text-sm leading-relaxed">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
+          </div>
+          
+          <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+            <div class="text-center mb-4">
+              <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-xl">⭐</span>
+              </div>
+              <h3 class="text-lg font-medium youtube-text-primary mb-3">لماذا تختارنا؟</h3>
+            </div>
+            <ul class="youtube-text-secondary text-sm space-y-2">
+              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تشفير قوي لحماية نصوصك</li>
+              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> واجهة حديثة وسهلة الاستخدام</li>
+              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> loadstring فريد وآمن لكل نص</li>
+              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تحديثات ودعم مستمر</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 
-  <footer class="glass-card p-6 md:p-8 text-center mt-auto">
-    <div class="max-w-4xl mx-auto">
-      <div class="mb-4 md:mb-6">
-        <h3 class="text-xl md:text-2xl font-display font-bold gradient-text mb-2">KULTHX SAFEME</h3>
-        <p class="text-base md:text-lg text-gray-300">© 2025 جميع الحقوق محفوظة ✨</p>
-      </div>
-      
-      <div class="text-xs md:text-sm text-gray-400">
-        <p>منصة آمنة وموثوقة لحماية نصوص Roblox</p>
-      </div>
+  <!-- Footer -->
+  <footer class="youtube-header border-t border-gray-700 mt-12">
+    <div class="max-w-6xl mx-auto p-6 text-center">
+      <h3 class="text-lg font-medium youtube-text-primary mb-2">KULTHX SAFEME</h3>
+      <p class="youtube-text-secondary text-sm">© 2025 جميع الحقوق محفوظة ✨</p>
+      <p class="youtube-text-secondary text-xs mt-2">منصة آمنة وموثوقة لحماية نصوص Roblox</p>
     </div>
   </footer>
 
@@ -205,37 +283,57 @@
       localStorage.setItem("userId", userId);
     }
 
-    // Socket.IO for online users (removed from display)
+    // Socket.IO connection
     const socket = io();
     socket.on("onlineUsers", (count) => {
-      // This event listener is kept for potential future use, but not displayed
+      // Online users count (not displayed)
     });
 
     // Sidebar toggle
+    const hamburgerBtn = document.getElementById("hamburgerBtn");
     const sidebar = document.getElementById("sidebar");
-    const sidebarToggle = document.getElementById("sidebarToggle");
-    sidebarToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("-translate-x-full");
+    const mainContent = document.getElementById("mainContent");
+
+    hamburgerBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      if (window.innerWidth > 768) {
+        if (sidebar.classList.contains("open")) {
+          mainContent.style.marginLeft = "240px";
+        } else {
+          mainContent.style.marginLeft = "0";
+        }
+      }
+    });
+
+    // Close sidebar on mobile when clicking outside
+    document.addEventListener("click", (e) => {
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(e.target) && 
+          !hamburgerBtn.contains(e.target) && 
+          sidebar.classList.contains("open")) {
+        sidebar.classList.remove("open");
+      }
     });
 
     // Toast notification function
     function showToast(message, type = "success") {
       const toast = document.getElementById("toast");
       const toastMessage = document.getElementById("toastMessage");
+      
       toastMessage.textContent = message;
-      toast.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg ${type === "success" ? "bg-green-600" : "bg-red-600"} text-white toast`;
-      toast.classList.remove("hidden");
+      toast.className = `toast ${type}`;
+      toast.classList.add("show");
+      
       setTimeout(() => {
-        toast.classList.add("hide");
-        setTimeout(() => toast.classList.add("hidden"), 300);
+        toast.classList.remove("show");
       }, 3000);
     }
 
     // Protect script
     document.getElementById("protectBtn").addEventListener("click", async () => {
       const script = document.getElementById("scriptInput").value;
-      if (!script) {
-        showToast("Please enter a script!", "error");
+      if (!script.trim()) {
+        showToast("يرجى إدخال نص أولاً!", "error");
         return;
       }
 
@@ -245,7 +343,9 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ script, userId })
         });
+        
         const data = await response.json();
+        
         if (data.error) {
           showToast(data.error, "error");
           if (data.loadstring) {
@@ -261,20 +361,56 @@
         const scriptLink = document.getElementById("scriptLink");
         scriptLink.value = data.loadstring;
         resultDiv.classList.remove("hidden");
-        showToast("Script protected successfully!");
+        showToast("تم حماية النص بنجاح!");
       } catch (err) {
-        showToast("Error generating loadstring!", "error");
+        showToast("حدث خطأ في إنشاء loadstring!", "error");
       }
     });
 
     // Copy loadstring
-    document.getElementById("copyBtn").addEventListener("click", () => {
+    document.getElementById("copyBtn").addEventListener("click", async () => {
       const scriptLink = document.getElementById("scriptLink");
-      scriptLink.select();
-      document.execCommand("copy");
-      showToast("Loadstring copied to clipboard!");
+      
+      try {
+        await navigator.clipboard.writeText(scriptLink.value);
+        showToast("تم نسخ Loadstring بنجاح!");
+      } catch (err) {
+        // Fallback for older browsers
+        scriptLink.select();
+        document.execCommand("copy");
+        showToast("تم نسخ Loadstring بنجاح!");
+      } 
+    });
+
+    // Initialize sidebar state on desktop
+    if (window.innerWidth > 768) {
+      sidebar.classList.add("open");
+      mainContent.style.marginLeft = "240px";
+    }
+
+    // Handle window resize
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) {
+        if (sidebar.classList.contains("open")) {
+          mainContent.style.marginLeft = "240px";
+        }
+      } else {
+        mainContent.style.marginLeft = "0";
+      }
     });
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
 
