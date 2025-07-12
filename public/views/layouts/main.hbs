@@ -9,19 +9,19 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* Removed background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
         }
         .gradient-text {
-            background: linear-gradient(45deg, #f0f0f0, #cccccc); /* Light gray gradient */
+            background: linear-gradient(45deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         .animated-bg {
-            /* Removed background: linear-gradient(-45deg, #667eea, #764ba2, #667eea, #764ba2); */
-            /* Removed background-size: 400% 400%; */
-            /* Removed animation: gradient 15s ease infinite; */
+            background: linear-gradient(-45deg, #667eea, #764ba2, #667eea, #764ba2);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
         }
         @keyframes gradient {
             0% { background-position: 0% 50%; }
@@ -29,11 +29,11 @@
             100% { background-position: 0% 50%; }
         }
         .glow-effect {
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
             transition: all 0.3s ease;
         }
         .glow-effect:hover {
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
             transform: translateY(-2px);
         }
         .floating {
@@ -54,8 +54,8 @@
                     🔒 KULTHX SAFEME
                 </a>
                 <div class="flex space-x-4 space-x-reverse">
-                    <a href="/" class="text-white hover:text-gray-400 transition duration-300">الرئيسية</a>
-                    <a href="/my-scripts" class="text-white hover:text-gray-400 transition duration-300">نصوصي</a>
+                    <a href="/" class="text-white hover:text-purple-200 transition duration-300">الرئيسية</a>
+                    <a href="/my-scripts" class="text-white hover:text-purple-200 transition duration-300">نصوصي</a>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <p class="text-white/60 text-sm">تم الإنشاء بواسطة KULTHX لمجتمع Roblox</p>
                 <div class="flex justify-center items-center mt-4 space-x-4 space-x-reverse">
                     <span class="text-white/60">المستخدمون المتصلون:</span>
-                    <span id="userCount" class="bg-gray-700 text-white px-3 py-1 rounded-full text-sm">0</span>
+                    <span id="userCount" class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm">0</span>
                 </div>
             </div>
         </div>
@@ -85,5 +85,3 @@
     <script src="/js/main.js"></script>
 </body>
 </html>
-
-

@@ -4,7 +4,8 @@
 body {
     font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
     direction: rtl;
-    color: #333; /* Darker text for better readability */
+    background-color: #1a1a1a; /* Dark background */
+    color: #f0f0f0; /* Light text for contrast */
 }
 
 /* Custom scrollbar */
@@ -13,22 +14,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #4CAF50; /* Modern green */
+    background: #444; /* Dark gray for scrollbar */
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #45a049; /* Darker green on hover */
+    background: #555; /* Lighter dark gray on hover */
 }
 
 /* Button animations */
 .btn-primary {
-    background: linear-gradient(45deg, #4CAF50, #8BC34A); /* Green gradient */
+    background: linear-gradient(45deg, #333, #555); /* Dark gray gradient */
     transition: all 0.3s ease;
     border: none;
     color: white;
@@ -40,7 +41,7 @@ body {
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3); /* Green shadow */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); /* Dark shadow */
 }
 
 .btn-primary:active {
@@ -50,19 +51,20 @@ body {
 /* Card animations */
 .card {
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(0, 0, 0, 0.1); /* Lighter border */
+    background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent dark background */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Light border */
     transition: all 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); /* Lighter shadow */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); /* Darker shadow */
 }
 
 /* Loading animation */
 .loading-spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1); /* Lighter border */
-    border-top: 4px solid #4CAF50; /* Modern green */
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top: 4px solid #f0f0f0; /* Light color for spinner */
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -78,11 +80,14 @@ body {
 textarea {
     resize: vertical;
     min-height: 200px;
+    background-color: #2a2a2a; /* Darker background for textarea */
+    color: #f0f0f0; /* Light text */
+    border: 1px solid #444; /* Dark border */
 }
 
 textarea:focus {
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); /* Green shadow */
-    border-color: #4CAF50; /* Modern green */
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2); /* Light shadow */
+    border-color: #f0f0f0; /* Light border */
 }
 
 /* Success/Error messages */
@@ -108,13 +113,14 @@ textarea:focus {
 /* Code display */
 .code-display {
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    background: rgba(0, 0, 0, 0.05); /* Lighter background */
+    background: rgba(255, 255, 255, 0.05); /* Light background for code display */
     border-radius: 8px;
     padding: 16px;
     white-space: pre-wrap;
     word-break: break-all;
     font-size: 14px;
     line-height: 1.5;
+    color: #f0f0f0; /* Light text */
 }
 
 /* Copy button */
@@ -130,7 +136,7 @@ textarea:focus {
     left: 50%;
     width: 0;
     height: 0;
-    background: rgba(0, 0, 0, 0.1); /* Lighter ripple */
+    background: rgba(255, 255, 255, 0.1); /* Light ripple */
     border-radius: 50%;
     transform: translate(-50%, -50%);
     transition: width 0.6s, height 0.6s;
@@ -171,5 +177,4 @@ textarea:focus {
         font-size: 16px; /* Prevent zoom on iOS */
     }
 }
-
 
