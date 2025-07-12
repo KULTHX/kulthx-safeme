@@ -6,183 +6,267 @@
   <title>KULTHX SAFEME - حماية نصوص Roblox</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
-
     body {
-      background: linear-gradient(135deg, theme('colors.darkPrimary') 0%, theme('colors.darkSecondary') 100%);
-      font-family: 'Inter', sans-serif;
-      color: theme('colors.textLight');
-      min-height: 100vh;
+      background-color: #0f0f0f;
+      font-family: "Roboto", sans-serif;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .youtube-header {
+      background-color: #212121;
+      border-bottom: 1px solid #303030;
+    }
+
+    .youtube-sidebar {
+      background-color: #212121;
+      border-right: 1px solid #303030;
+    }
+
+    .youtube-card {
+      background-color: #1a1a1a;
+      border: 1px solid #303030;
+      border-radius: 12px;
+    }
+
+    .youtube-card:hover {
+      background-color: #262626;
+    }
+
+    .youtube-button {
+      background-color: #cc0000;
+      color: white;
+      border: none;
+      border-radius: 18px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .youtube-button:hover {
+      background-color: #aa0000;
+    }
+
+    .youtube-input {
+      background-color: #121212;
+      border: 1px solid #303030;
+      color: #ffffff;
+      border-radius: 2px;
+    }
+
+    .youtube-input:focus {
+      outline: none;
+      border-color: #065fd4;
+      box-shadow: 0 0 0 1px #065fd4;
+    }
+
+    .youtube-text-secondary {
+      color: #aaaaaa;
+    }
+
+    .youtube-text-primary {
+      color: #ffffff;
+    }
+
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: #ffffff;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .hamburger-btn:hover {
+      background-color: #303030;
+    }
+
+    .sidebar-item {
+      color: #ffffff;
+      padding: 10px 24px;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      border-radius: 10px;
+      margin: 0 12px;
+      transition: background-color 0.2s ease;
     }
 
-    h1, h2, h3 {
-      font-family: 'Montserrat', sans-serif;
+    .sidebar-item:hover {
+      background-color: #303030;
     }
 
-    .glass-card {
-      background: theme('colors.glassMorphism');
-      border: 1px solid theme('colors.glassBorder');
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+    .sidebar-item.active {
+      background-color: #303030;
     }
 
-    .gradient-text {
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      background-image: linear-gradient(to right, theme('colors.gradientStart'), theme('colors.gradientEnd'));
-    }
-
-    .btn-primary {
-      background: linear-gradient(to right, theme('colors.buttonPrimary'), theme('colors.gradientEnd'));
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      padding: 12px 16px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(-20px);
       transition: all 0.3s ease;
     }
 
-    .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    /* Custom animations for toast notifications */
-    @keyframes slideIn {
-      from { transform: translateY(-100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    .toast.success {
+      background-color: #00d084;
     }
-    @keyframes slideOut {
-      from { transform: translateY(0); opacity: 1; }
-      to { transform: translateY(-100%); opacity: 0; }
+
+    .toast.error {
+      background-color: #ff4444;
     }
-    .toast {
-      animation: slideIn 0.3s ease-out forwards;
-    }
-    .toast.hide {
-      animation: slideOut 0.3s ease-out forwards;
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Toast Notification Container -->
-  <div id="toast" class="fixed top-4 right-4 z-50 hidden bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
     <span id="toastMessage"></span>
   </div>
 
-  <!-- Sidebar Toggle Button -->
-  <button id="sidebarToggle" class="fixed top-4 left-4 z-50 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-    </svg>
-  </button>
-
-  <!-- Sidebar -->
-  <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-darkPrimary/95 glass-card transform -translate-x-full transition-transform duration-300 ease-in-out z-40 shadow-2xl border-r border-glassBorder">
-    <div class="p-6">
-      <h2 class="text-2xl font-display font-bold gradient-text">KULTHX SAFEME</h2>
-      <ul class="mt-8 space-y-4">
-        <li><a href="/real-home" class="block text-lg hover:bg-darkAccent px-4 py-3 rounded-md transition-all duration-200">🏠 الرئيسية</a></li>
-        <li><a href="/my-scripts" class="block text-lg hover:bg-darkAccent px-4 py-3 rounded-md transition-all duration-200">📜 نصوصي</a></li>
-        <li><a href="#about" class="block text-lg hover:bg-darkAccent px-4 py-3 rounded-md transition-all duration-200">ℹ حول</a></li>
-      </ul>
+  <!-- Header -->
+  <header class="youtube-header fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-4">
+    <button id="hamburgerBtn" class="hamburger-btn mr-4">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+      </svg>
+    </button>
+    
+    <div class="flex items-center flex-1">
+      <h1 class="text-xl font-medium youtube-text-primary">🔒 KULTHX SAFEME</h1>
     </div>
-  </div>
-
-  <header class="bg-darkPrimary/80 glass-card p-6 shadow-lg border-b border-glassBorder">
-    <nav class="flex justify-end items-center max-w-7xl mx-auto">
-      <h1 class="text-4xl font-display font-extrabold gradient-text tracking-tight">🔒 KULTHX SAFEME</h1>
-    </nav>
   </header>
 
-  <main class="flex-grow max-w-7xl mx-auto p-8">
-    <section class="text-center py-20 glass-card rounded-lg shadow-xl">
-      <div class="mb-8">
-        <h2 class="text-5xl font-display font-bold mb-6 gradient-text">حماية نصوص Roblox</h2>
-        <p class="text-xl mb-8 text-textLight max-w-3xl mx-auto leading-relaxed">قم بتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox!</p>
-      </div>
-      
-      <div class="flex justify-center mb-8">
-        <div class="relative w-full max-w-4xl">
-          <textarea id="scriptInput" rows="8" class="w-full p-6 bg-darkSecondary/80 border border-glassBorder rounded-lg text-textLight focus:ring-2 focus:ring-gradientStart focus:border-gradientEnd transition-all duration-300 placeholder-textMuted text-lg" placeholder="الصق نص Roblox الخاص بك هنا..."></textarea>
-        </div>
-      </div>
-      
-      <button id="protectBtn" class="btn-primary text-white font-bold py-4 px-8 rounded-lg shadow-lg text-lg">
-        🚀 احم نصك
-      </button>
-      
-      <div id="result" class="mt-8 hidden">
-        <div class="glass-card rounded-lg p-6 max-w-4xl mx-auto">
-          <p class="text-green-400 font-semibold text-lg mb-4">✅ Loadstring النص المحمي:</p>
-          <div class="relative">
-            <input id="scriptLink" type="text" readonly class="w-full p-4 bg-darkSecondary/80 border border-glassBorder rounded-lg text-textLight text-sm font-mono">
-          </div>
-          <button id="copyBtn" class="btn-primary mt-4 text-white py-3 px-6 rounded-lg shadow-lg">📋 نسخ Loadstring</button>
-        </div>
-      </div>
-    </section>
+  <!-- Sidebar -->
+  <nav id="sidebar" class="sidebar youtube-sidebar fixed left-0 top-14 bottom-0 w-60 z-40 transition-transform duration-300 overflow-y-auto">
+    <div class="py-3">
+      <a href="/real-home" class="sidebar-item active">
+        <span class="mr-6">🏠</span>
+        <span>الرئيسية</span>
+      </a>
+      <a href="/my-scripts" class="sidebar-item">
+        <span class="mr-6">📜</span>
+        <span>نصوصي</span>
+      </a>
+      <a href="#about" class="sidebar-item">
+        <span class="mr-6">ℹ️</span>
+        <span>حول</span>
+      </a>
+    </div>
+  </nav>
 
-    <section id="about" class="py-20">
-      <h2 class="text-4xl font-display font-bold mb-12 text-center gradient-text">ℹ حول KULTHX SAFEME</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="glass-card p-8 rounded-lg shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-gradient-to-r from-gradientStart to-gradientEnd rounded-full flex items-center justify-center mx-auto mb-4">
-              <span class="text-2xl">🛡️</span>
-            </div>
-            <h3 class="text-2xl font-display font-semibold gradient-text">ما هو KULTHX SAFEME؟</h3>
+  <!-- Main Content -->
+  <main class="pt-14 transition-all duration-300" id="mainContent">
+    <div class="max-w-6xl mx-auto p-4 md:p-6">
+      <!-- Hero Section -->
+      <div class="youtube-card p-6 md:p-8 mb-8">
+        <div class="text-center">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 youtube-text-primary">حماية نصوص Roblox</h2>
+          <p class="text-lg youtube-text-secondary mb-8 max-w-3xl mx-auto">قم بتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox!</p>
+          
+          <div class="max-w-4xl mx-auto mb-6">
+            <textarea 
+              id="scriptInput" 
+              rows="8" 
+              class="youtube-input w-full p-4 text-base resize-none"
+              placeholder="الصق نص Roblox الخاص بك هنا..."
+            ></textarea>
           </div>
-          <p class="text-textLight leading-relaxed">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
-        </div>
-        
-        <div class="glass-card p-8 rounded-lg shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-gradient-to-r from-gradientEnd to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span class="text-2xl">⚙️</span>
+          
+          <button id="protectBtn" class="youtube-button px-6 py-3 text-base font-medium">
+            🚀 احم نصك
+          </button>
+          
+          <div id="result" class="mt-8 hidden">
+            <div class="youtube-card p-6">
+              <p class="text-green-400 font-medium text-lg mb-4">✅ Loadstring النص المحمي:</p>
+              <div class="mb-4">
+                <input 
+                  id="scriptLink" 
+                  type="text" 
+                  readonly 
+                  class="youtube-input w-full p-3 text-sm font-mono"
+                >
+              </div>
+              <button id="copyBtn" class="youtube-button px-4 py-2 text-sm">
+                📋 نسخ Loadstring
+              </button>
             </div>
-            <h3 class="text-2xl font-display font-semibold gradient-text">كيف يعمل</h3>
           </div>
-          <p class="text-textLight leading-relaxed">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
-        </div>
-        
-        <div class="glass-card p-8 rounded-lg shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-gradient-to-r from-cyan-500 to-gradientStart rounded-full flex items-center justify-center mx-auto mb-4">
-              <span class="text-2xl">⭐</span>
-            </div>
-            <h3 class="text-2xl font-display font-semibold gradient-text">لماذا تختارنا؟</h3>
-          </div>
-          <ul class="text-textLight space-y-3">
-            <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تشفير قوي لحماية نصوصك</li>
-            <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> واجهة حديثة وسهلة الاستخدام</li>
-            <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> loadstring فريد وآمن لكل نص</li>
-            <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تحديثات ودعم مستمر</li>
-          </ul>
         </div>
       </div>
-    </section>
+
+      <!-- About Section -->
+      <section id="about" class="mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold mb-6 youtube-text-primary text-center">ℹ️ حول KULTHX SAFEME</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+            <div class="text-center mb-4">
+              <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-xl">🛡️</span>
+              </div>
+              <h3 class="text-lg font-medium youtube-text-primary mb-3">ما هو KULTHX SAFEME؟</h3>
+            </div>
+            <p class="youtube-text-secondary text-sm leading-relaxed">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
+          </div>
+          
+          <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+            <div class="text-center mb-4">
+              <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-xl">⚙️</span>
+              </div>
+              <h3 class="text-lg font-medium youtube-text-primary mb-3">كيف يعمل</h3>
+            </div>
+            <p class="youtube-text-secondary text-sm leading-relaxed">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
+          </div>
+          
+          <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+            <div class="text-center mb-4">
+              <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-xl">⭐</span>
+              </div>
+              <h3 class="text-lg font-medium youtube-text-primary mb-3">لماذا تختارنا؟</h3>
+            </div>
+            <ul class="youtube-text-secondary text-sm space-y-2">
+              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تشفير قوي لحماية نصوصك</li>
+              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> واجهة حديثة وسهلة الاستخدام</li>
+              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> loadstring فريد وآمن لكل نص</li>
+              <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تحديثات ودعم مستمر</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 
-  <footer class="bg-darkPrimary/90 glass-card p-8 text-center border-t border-glassBorder mt-auto">
-    <div class="max-w-4xl mx-auto">
-      <div class="mb-6">
-        <h3 class="text-2xl font-display font-bold gradient-text mb-2">KULTHX SAFEME</h3>
-        <p class="text-lg text-textLight">© 2025 جميع الحقوق محفوظة ✨</p>
-      </div>
-      
-      <div class="flex justify-center items-center space-x-4 mb-4">
-        <div class="glass-card rounded-full px-6 py-3">
-          <span class="text-sm text-textMuted">👥 المستخدمون المتصلون:</span>
-          <span id="onlineUsers" class="bg-gradient-to-r from-gradientStart to-gradientEnd text-white px-4 py-1 rounded-full ml-2 font-semibold">0</span>
-        </div>
-      </div>
-      
-      <div class="text-sm text-textMuted">
-        <p>منصة آمنة وموثوقة لحماية نصوص Roblox</p>
-      </div>
+  <!-- Footer -->
+  <footer class="youtube-header border-t border-gray-700 mt-12">
+    <div class="max-w-6xl mx-auto p-6 text-center">
+      <h3 class="text-lg font-medium youtube-text-primary mb-2">KULTHX SAFEME</h3>
+      <p class="youtube-text-secondary text-sm">© 2025 جميع الحقوق محفوظة ✨</p>
+      <p class="youtube-text-secondary text-xs mt-2">منصة آمنة وموثوقة لحماية نصوص Roblox</p>
     </div>
   </footer>
 
@@ -194,37 +278,57 @@
       localStorage.setItem("userId", userId);
     }
 
-    // Socket.IO for online users
+    // Socket.IO connection
     const socket = io();
     socket.on("onlineUsers", (count) => {
-      document.getElementById("onlineUsers").textContent = count;
+      // Online users count (not displayed)
     });
 
     // Sidebar toggle
+    const hamburgerBtn = document.getElementById("hamburgerBtn");
     const sidebar = document.getElementById("sidebar");
-    const sidebarToggle = document.getElementById("sidebarToggle");
-    sidebarToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("-translate-x-full");
+    const mainContent = document.getElementById("mainContent");
+
+    hamburgerBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      if (window.innerWidth > 768) {
+        if (sidebar.classList.contains("open")) {
+          mainContent.style.marginLeft = "240px";
+        } else {
+          mainContent.style.marginLeft = "0";
+        }
+      }
+    });
+
+    // Close sidebar on mobile when clicking outside
+    document.addEventListener("click", (e) => {
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(e.target) && 
+          !hamburgerBtn.contains(e.target) && 
+          sidebar.classList.contains("open")) {
+        sidebar.classList.remove("open");
+      }
     });
 
     // Toast notification function
     function showToast(message, type = "success") {
       const toast = document.getElementById("toast");
       const toastMessage = document.getElementById("toastMessage");
+      
       toastMessage.textContent = message;
-      toast.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg ${type === "success" ? "bg-green-600" : "bg-red-600"} text-white toast`;
-      toast.classList.remove("hidden");
+      toast.className = `toast ${type}`;
+      toast.classList.add("show");
+      
       setTimeout(() => {
-        toast.classList.add("hide");
-        setTimeout(() => toast.classList.add("hidden"), 300);
+        toast.classList.remove("show");
       }, 3000);
     }
 
     // Protect script
     document.getElementById("protectBtn").addEventListener("click", async () => {
       const script = document.getElementById("scriptInput").value;
-      if (!script) {
-        showToast("Please enter a script!", "error");
+      if (!script.trim()) {
+        showToast("يرجى إدخال نص أولاً!", "error");
         return;
       }
 
@@ -234,7 +338,9 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ script, userId })
         });
+        
         const data = await response.json();
+        
         if (data.error) {
           showToast(data.error, "error");
           if (data.loadstring) {
@@ -250,21 +356,44 @@
         const scriptLink = document.getElementById("scriptLink");
         scriptLink.value = data.loadstring;
         resultDiv.classList.remove("hidden");
-        showToast("Script protected successfully!");
+        showToast("تم حماية النص بنجاح!");
       } catch (err) {
-        showToast("Error generating loadstring!", "error");
+        showToast("حدث خطأ في إنشاء loadstring!", "error");
       }
     });
 
     // Copy loadstring
-    document.getElementById("copyBtn").addEventListener("click", () => {
+    document.getElementById("copyBtn").addEventListener("click", async () => {
       const scriptLink = document.getElementById("scriptLink");
-      scriptLink.select();
-      document.execCommand("copy");
-      showToast("Loadstring copied to clipboard!");
+      
+      try {
+        await navigator.clipboard.writeText(scriptLink.value);
+        showToast("تم نسخ Loadstring بنجاح!");
+      } catch (err) {
+        // Fallback for older browsers
+        scriptLink.select();
+        document.execCommand("copy");
+        showToast("تم نسخ Loadstring بنجاح!");
+      }
+    });
+
+    // Initialize sidebar state on desktop
+    if (window.innerWidth > 768) {
+      sidebar.classList.add("open");
+      mainContent.style.marginLeft = "240px";
+    }
+
+    // Handle window resize
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) {
+        if (sidebar.classList.contains("open")) {
+          mainContent.style.marginLeft = "240px";
+        }
+      } else {
+        mainContent.style.marginLeft = "0";
+      }
     });
   </script>
 </body>
 </html>
-
 
