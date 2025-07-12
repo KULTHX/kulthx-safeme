@@ -6,99 +6,111 @@
   <title>KULTHX SAFEME - حماية نصوص Roblox</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #0f0f0f;
-      font-family: "Roboto", sans-serif;
-      color: #ffffff;
+      background: hsl(210, 11%, 6%);
+      font-family: "Noto Sans Arabic", "Inter", sans-serif;
+      color: hsl(0, 0%, 100%);
       margin: 0;
       padding: 0;
+      overflow-x: hidden;
     }
 
-    .youtube-header {
-      background-color: #212121;
+    .roblox-header {
+      background: rgba(33, 37, 41, 0.9); /* hsl(210, 11%, 15%) with opacity */
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid hsl(210, 11%, 15%);
     }
 
-    .youtube-sidebar {
-      background-color: #212121;
-      border-right: 1px solid #303030;
+    .roblox-sidebar {
+      background: rgba(33, 37, 41, 0.95); /* hsl(210, 11%, 15%) with opacity */
+      backdrop-filter: blur(10px);
+      border-left: 1px solid hsl(210, 11%, 15%);
     }
 
-    .youtube-card {
-      background-color: #1a1a1a;
-      border: 1px solid #303030;
+    .roblox-card {
+      background: hsl(210, 11%, 8%);
+      border: 1px solid hsl(210, 11%, 15%);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .roblox-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .roblox-button {
+      background: hsl(199, 89%, 48%);
+      color: hsl(0, 0%, 100%);
+      border: none;
       border-radius: 12px;
-    }
-
-    .youtube-card:hover {
-      background-color: #262626;
-    }
-
-    .youtube-button {
-      background-color: #cc0000;
-      color: white;
-      border: none;
-      border-radius: 18px;
-      font-weight: 500;
+      font-weight: 600;
       transition: all 0.2s ease;
     }
 
-    .youtube-button:hover {
-      background-color: #aa0000;
+    .roblox-button:hover {
+      background: hsl(199, 89%, 38%);
+      transform: scale(1.05);
     }
 
-    .youtube-button-secondary {
-      background-color: #3f3f3f;
-      color: white;
+    .roblox-button-secondary {
+      background: hsl(210, 11%, 15%);
+      color: hsl(199, 89%, 48%);
       border: none;
-      border-radius: 18px;
-      font-weight: 500;
+      border-radius: 12px;
+      font-weight: 600;
       transition: all 0.2s ease;
     }
 
-    .youtube-button-secondary:hover {
-      background-color: #4f4f4f;
+    .roblox-button-secondary:hover {
+      background: hsl(210, 11%, 20%);
+      transform: scale(1.05);
     }
 
-    .youtube-button-danger {
-      background-color: #cc0000;
-      color: white;
+    .roblox-button-danger {
+      background: hsl(0, 100%, 50%);
+      color: hsl(0, 0%, 100%);
       border: none;
-      border-radius: 18px;
-      font-weight: 500;
+      border-radius: 12px;
+      font-weight: 600;
       transition: all 0.2s ease;
     }
 
-    .youtube-button-danger:hover {
-      background-color: #aa0000;
+    .roblox-button-danger:hover {
+      background: hsl(0, 100%, 40%);
+      transform: scale(1.05);
     }
 
-    .youtube-input {
-      background-color: #121212;
-      border: 1px solid #303030;
-      color: #ffffff;
-      border-radius: 2px;
+    .roblox-input {
+      background: hsl(210, 11%, 10%);
+      border: 1px solid hsl(210, 11%, 15%);
+      border-radius: 12px;
+      color: hsl(0, 0%, 100%);
+      padding: 12px;
+      font-family: "Fira Code", monospace;
+      font-size: 16px;
     }
 
-    .youtube-input:focus {
+    .roblox-input:focus {
       outline: none;
-      border-color: #4a4a4a;
-      box-shadow: none;
+      border-color: hsl(199, 89%, 48%);
+      box-shadow: 0 0 0 3px rgba(33, 184, 230, 0.3);
     }
 
-    .youtube-text-secondary {
-      color: #aaaaaa;
+    .roblox-text-primary {
+      color: hsl(0, 0%, 100%);
     }
 
-    .youtube-text-primary {
-      color: #ffffff;
+    .roblox-text-secondary {
+      color: hsl(0, 0%, 67%);
     }
 
     .hamburger-btn {
       background: none;
       border: none;
-      color: #ffffff;
+      color: hsl(199, 89%, 48%);
       padding: 8px;
       border-radius: 50%;
       cursor: pointer;
@@ -106,32 +118,28 @@
     }
 
     .hamburger-btn:hover {
-      background-color: #303030;
+      background: rgba(33, 184, 230, 0.1);
     }
 
     .sidebar-item {
-      color: #ffffff;
-      padding: 10px 24px;
+      color: hsl(0, 0%, 100%);
+      padding: 12px 24px;
       display: flex;
       align-items: center;
       text-decoration: none;
-      border-radius: 10px;
+      border-radius: 12px;
       margin: 0 12px;
       transition: background-color 0.2s ease;
       cursor: pointer;
     }
 
-    .sidebar-item:focus {
-      outline: none;
-      box-shadow: none;
-    }
-
     .sidebar-item:hover {
-      background-color: #303030;
+      background: rgba(33, 184, 230, 0.1);
     }
 
     .sidebar-item.active {
-      background-color: #303030;
+      background: rgba(33, 184, 230, 0.2);
+      color: hsl(199, 89%, 48%);
     }
 
     .toast {
@@ -140,12 +148,13 @@
       right: 20px;
       z-index: 1000;
       padding: 12px 16px;
-      border-radius: 4px;
-      color: white;
+      border-radius: 12px;
+      color: hsl(0, 0%, 100%);
       font-weight: 500;
       opacity: 0;
       transform: translateY(-20px);
       transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
     .toast.show {
@@ -154,11 +163,11 @@
     }
 
     .toast.success {
-      background-color: #00d084;
+      background: hsl(120, 61%, 34%);
     }
 
     .toast.error {
-      background-color: #ff4444;
+      background: hsl(0, 100%, 50%);
     }
 
     .modal {
@@ -167,7 +176,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.7);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -183,14 +192,15 @@
     }
 
     .modal-content {
-      background-color: #1a1a1a;
-      border: 1px solid #303030;
-      border-radius: 12px;
+      background: hsl(210, 11%, 8%);
+      border: 1px solid hsl(210, 11%, 15%);
+      border-radius: 16px;
       padding: 24px;
       max-width: 600px;
       width: 90%;
       max-height: 80vh;
       overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
     .page-section {
@@ -220,22 +230,22 @@
   <!-- Edit Modal -->
   <div id="editModal" class="modal">
     <div class="modal-content">
-      <h3 class="text-xl font-medium youtube-text-primary mb-4">تعديل النص</h3>
+      <h3 class="text-xl font-semibold roblox-text-primary mb-4">تعديل النص</h3>
       <textarea 
         id="editScriptInput" 
         rows="6" 
-        class="youtube-input w-full p-3 text-sm resize-none mb-4"
+        class="roblox-input w-full p-3 text-sm resize-none mb-4"
         placeholder="أدخل النص المحدث هنا..."
       ></textarea>
       <div class="flex justify-end space-x-3">
-        <button id="cancelEdit" class="youtube-button-secondary px-4 py-2 text-sm">إلغاء</button>
-        <button id="saveEdit" class="youtube-button px-4 py-2 text-sm">حفظ</button>
+        <button id="cancelEdit" class="roblox-button-secondary px-4 py-2 text-sm">إلغاء</button>
+        <button id="saveEdit" class="roblox-button px-4 py-2 text-sm">حفظ</button>
       </div>
     </div>
   </div>
 
   <!-- Header -->
-  <header class="youtube-header fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-4">
+  <header class="roblox-header fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-4">
     <button id="hamburgerBtn" class="hamburger-btn mr-4">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
@@ -243,12 +253,13 @@
     </button>
     
     <div class="flex items-center flex-1">
-      <h1 class="text-xl font-medium text-white">KULTHX SAFEME</h1>
+      <span class="text-2xl mr-2">🛡️</span>
+      <h1 class="text-xl font-semibold roblox-text-primary">KULTHX SAFEME</h1>
     </div>
   </header>
 
   <!-- Sidebar -->
-  <nav id="sidebar" class="sidebar youtube-sidebar fixed left-0 top-14 bottom-0 w-60 z-40 transition-transform duration-300 overflow-y-auto">
+  <nav id="sidebar" class="sidebar roblox-sidebar fixed left-0 top-14 bottom-0 w-60 z-40 transition-transform duration-300 overflow-y-auto">
     <div class="py-3">
       <div class="sidebar-item active" data-page="home">
         <span class="mr-6">🏠</span>
@@ -272,36 +283,36 @@
     <div id="homePage" class="page-section active">
       <div class="max-w-6xl mx-auto p-4 md:p-6">
         <!-- Hero Section -->
-        <div class="youtube-card p-6 md:p-8 mb-8">
+        <div class="roblox-card p-6 md:p-8 mb-8">
           <div class="text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-4 youtube-text-primary">حماية نصوص Roblox</h2>
-            <p class="text-lg youtube-text-secondary mb-8 max-w-3xl mx-auto">قم بتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox!</p>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 roblox-text-primary">حماية نصوص Roblox</h2>
+            <p class="text-lg roblox-text-secondary mb-8 max-w-3xl mx-auto">قم بتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox!</p>
             
             <div class="max-w-4xl mx-auto mb-6">
               <textarea 
                 id="scriptInput" 
                 rows="8" 
-                class="youtube-input w-full p-4 text-base resize-none"
+                class="roblox-input w-full p-4 text-base resize-none"
                 placeholder="الصق نص Roblox الخاص بك هنا..."
               ></textarea>
             </div>
             
-            <button id="protectBtn" class="youtube-button px-6 py-3 text-base font-medium">
+            <button id="protectBtn" class="roblox-button px-6 py-3 text-base font-semibold">
               🚀 احم نصك
             </button>
             
             <div id="result" class="mt-8 hidden">
-              <div class="youtube-card p-6">
-                <p class="text-green-400 font-medium text-lg mb-4">✅ Loadstring النص المحمي:</p>
+              <div class="roblox-card p-6">
+                <p class="text-green-500 font-semibold text-lg mb-4">✅ Loadstring النص المحمي:</p>
                 <div class="mb-4">
                   <input 
                     id="scriptLink" 
                     type="text" 
                     readonly 
-                    class="youtube-input w-full p-3 text-sm font-mono"
+                    class="roblox-input w-full p-3 text-sm font-mono"
                   >
                 </div>
-                <button id="copyBtn" class="youtube-button px-4 py-2 text-sm">
+                <button id="copyBtn" class="roblox-button px-4 py-2 text-sm">
                   📋 نسخ Loadstring
                 </button>
               </div>
@@ -315,8 +326,8 @@
     <div id="scriptsPage" class="page-section">
       <div class="max-w-6xl mx-auto p-4 md:p-6">
         <div class="mb-8">
-          <h2 class="text-2xl md:text-3xl font-bold youtube-text-primary mb-2">📜 نصوصي المحمية</h2>
-          <p class="youtube-text-secondary">إدارة وتعديل النصوص المحمية الخاصة بك</p>
+          <h2 class="text-2xl md:text-3xl font-bold roblox-text-primary mb-2">📜 نصوصي المحمية</h2>
+          <p class="roblox-text-secondary">إدارة وتعديل النصوص المحمية الخاصة بك</p>
         </div>
 
         <div id="scriptsList" class="space-y-4">
@@ -329,40 +340,40 @@
     <div id="aboutPage" class="page-section">
       <div class="max-w-6xl mx-auto p-4 md:p-6">
         <section class="mb-8">
-          <h2 class="text-2xl md:text-3xl font-bold mb-6 youtube-text-primary text-center">ℹ️ حول KULTHX SAFEME</h2>
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 roblox-text-primary text-center">ℹ️ حول KULTHX SAFEME</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+            <div class="roblox-card p-6 transition-all duration-200">
               <div class="text-center mb-4">
-                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span class="text-xl">🛡️</span>
                 </div>
-                <h3 class="text-lg font-medium youtube-text-primary mb-3">ما هو KULTHX SAFEME؟</h3>
+                <h3 class="text-lg font-semibold roblox-text-primary mb-3">ما هو KULTHX SAFEME؟</h3>
               </div>
-              <p class="youtube-text-secondary text-sm leading-relaxed">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
+              <p class="roblox-text-secondary text-sm leading-relaxed">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
             </div>
             
-            <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+            <div class="roblox-card p-6 transition-all duration-200">
               <div class="text-center mb-4">
-                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span class="text-xl">⚙️</span>
                 </div>
-                <h3 class="text-lg font-medium youtube-text-primary mb-3">كيف يعمل</h3>
+                <h3 class="text-lg font-semibold roblox-text-primary mb-3">كيف يعمل</h3>
               </div>
-              <p class="youtube-text-secondary text-sm leading-relaxed">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
+              <p class="roblox-text-secondary text-sm leading-relaxed">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
             </div>
             
-            <div class="youtube-card p-6 hover:bg-opacity-80 transition-all duration-200">
+            <div class="roblox-card p-6 transition-all duration-200">
               <div class="text-center mb-4">
-                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span class="text-xl">⭐</span>
                 </div>
-                <h3 class="text-lg font-medium youtube-text-primary mb-3">لماذا تختارنا؟</h3>
+                <h3 class="text-lg font-semibold roblox-text-primary mb-3">لماذا تختارنا؟</h3>
               </div>
-              <ul class="youtube-text-secondary text-sm space-y-2">
-                <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تشفير قوي لحماية نصوصك</li>
-                <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> واجهة حديثة وسهلة الاستخدام</li>
-                <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> loadstring فريد وآمن لكل نص</li>
-                <li class="flex items-center"><span class="text-green-400 mr-2">✓</span> تحديثات ودعم مستمر</li>
+              <ul class="roblox-text-secondary text-sm space-y-2">
+                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> تشفير قوي لحماية نصوصك</li>
+                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> واجهة حديثة وسهلة الاستخدام</li>
+                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> loadstring فريد وآمن لكل نص</li>
+                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> تحديثات ودعم مستمر</li>
               </ul>
             </div>
           </div>
@@ -373,11 +384,11 @@
   </main>
 
   <!-- Footer -->
-  <footer class="youtube-header border-t border-gray-700 mt-12">
+  <footer class="roblox-header border-t border-hsl(210, 11%, 15%) mt-12">
     <div class="max-w-6xl mx-auto p-6 text-center">
-      <h3 class="text-lg font-medium youtube-text-primary mb-2">KULTHX SAFEME</h3>
-      <p class="youtube-text-secondary text-sm">© 2025 جميع الحقوق محفوظة ✨</p>
-      <p class="youtube-text-secondary text-xs mt-2">منصة آمنة وموثوقة لحماية نصوص Roblox</p>
+      <h3 class="text-lg font-semibold roblox-text-primary mb-2">KULTHX SAFEME</h3>
+      <p class="roblox-text-secondary text-sm">© 2025 جميع الحقوق محفوظة ✨</p>
+      <p class="roblox-text-secondary text-xs mt-2">منصة آمنة وموثوقة لحماية نصوص Roblox</p>
     </div>
   </footer>
 
@@ -396,15 +407,12 @@
     let currentPage = 'home';
     
     function showPage(pageId) {
-      // Hide all pages
       document.querySelectorAll('.page-section').forEach(page => {
         page.classList.remove('active');
       });
       
-      // Show selected page
       document.getElementById(pageId + 'Page').classList.add('active');
       
-      // Update sidebar active state
       document.querySelectorAll('.sidebar-item').forEach(item => {
         item.classList.remove('active');
       });
@@ -412,13 +420,11 @@
       
       currentPage = pageId;
       
-      // Load scripts if navigating to scripts page
       if (pageId === 'scripts') {
         loadScripts();
       }
     }
 
-    // Sidebar navigation
     document.querySelectorAll('.sidebar-item').forEach(item => {
       item.addEventListener('click', () => {
         const pageId = item.dataset.page;
@@ -426,7 +432,6 @@
       });
     });
 
-    // Sidebar toggle
     const hamburgerBtn = document.getElementById("hamburgerBtn");
     const sidebar = document.getElementById("sidebar");
     const mainContent = document.getElementById("mainContent");
@@ -442,7 +447,6 @@
       }
     });
 
-    // Close sidebar on mobile when clicking outside
     document.addEventListener("click", (e) => {
       if (window.innerWidth <= 768 && 
           !sidebar.contains(e.target) && 
@@ -452,7 +456,6 @@
       }
     });
 
-    // Toast notification function
     function showToast(message, type = "success") {
       const toast = document.getElementById("toast");
       const toastMessage = document.getElementById("toastMessage");
@@ -466,7 +469,6 @@
       }, 3000);
     }
 
-    // Protect script
     document.getElementById("protectBtn").addEventListener("click", async () => {
       const script = document.getElementById("scriptInput").value;
       if (!script.trim()) {
@@ -504,7 +506,6 @@
       }
     });
 
-    // Copy loadstring
     document.getElementById("copyBtn").addEventListener("click", async () => {
       const scriptLink = document.getElementById("scriptLink");
       
@@ -512,14 +513,12 @@
         await navigator.clipboard.writeText(scriptLink.value);
         showToast("تم نسخ Loadstring بنجاح!");
       } catch (err) {
-        // Fallback for older browsers
         scriptLink.select();
         document.execCommand("copy");
         showToast("تم نسخ Loadstring بنجاح!");
       } 
     });
 
-    // Load scripts
     async function loadScripts() {
       try {
         const response = await fetch("/my-scripts", {
@@ -540,8 +539,8 @@
         
         if (scripts.length === 0) {
           scriptsList.innerHTML = `
-            <div class="youtube-card p-6 text-center">
-              <p class="youtube-text-secondary">لا توجد نصوص محمية. احم نصك الأول من <span class="text-red-500 hover:text-red-400 underline cursor-pointer" onclick="showPage('home')">الصفحة الرئيسية</span>.</p>
+            <div class="roblox-card p-6 text-center">
+              <p class="roblox-text-secondary">لا توجد نصوص محمية. احم نصك الأول من <span class="text-blue-400 hover:text-blue-300 underline cursor-pointer" onclick="showPage('home')">الصفحة الرئيسية</span>.</p>
             </div>
           `;
           return;
@@ -549,37 +548,37 @@
 
         scripts.forEach(script => {
           const scriptDiv = document.createElement("div");
-          scriptDiv.className = "youtube-card p-4 md:p-6";
+          scriptDiv.className = "roblox-card p-4 md:p-6";
           scriptDiv.innerHTML = `
             <div class="mb-4">
-              <p class="font-medium youtube-text-primary text-sm mb-2">Loadstring:</p>
+              <p class="font-semibold roblox-text-primary text-sm mb-2">Loadstring:</p>
               <input 
                 type="text" 
                 value="${script.loadstring.replace(/"/g, "&quot;")}" 
                 readonly 
-                class="youtube-input w-full p-2 text-xs font-mono"
+                class="roblox-input w-full p-2 text-xs font-mono"
               >
             </div>
             
             <div class="mb-4">
-              <p class="youtube-text-secondary text-xs mb-2">
-                <span class="font-medium">تاريخ الإنشاء:</span> ${new Date(script.createdAt).toLocaleString()}
+              <p class="roblox-text-secondary text-xs mb-2">
+                <span class="font-semibold">تاريخ الإنشاء:</span> ${new Date(script.createdAt).toLocaleString()}
               </p>
               <textarea 
                 rows="4" 
-                class="youtube-input w-full p-2 text-xs font-mono resize-none" 
+                class="roblox-input w-full p-2 text-xs font-mono resize-none" 
                 readonly
               >${script.script.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</textarea>
             </div>
             
             <div class="flex flex-wrap gap-2">
-              <button class="edit-btn youtube-button-secondary px-3 py-1.5 text-xs" data-script-id="${script.id}">
+              <button class="edit-btn roblox-button-secondary px-3 py-1.5 text-xs" data-script-id="${script.id}">
                 ✏️ تعديل
               </button>
-              <button class="delete-btn youtube-button-danger px-3 py-1.5 text-xs" data-script-id="${script.id}">
+              <button class="delete-btn roblox-button-danger px-3 py-1.5 text-xs" data-script-id="${script.id}">
                 🗑️ حذف
               </button>
-              <button class="copy-btn youtube-button px-3 py-1.5 text-xs" data-loadstring="${script.loadstring.replace(/"/g, "&quot;")}">
+              <button class="copy-btn roblox-button px-3 py-1.5 text-xs" data-loadstring="${script.loadstring.replace(/"/g, "&quot;")}">
                 📋 نسخ Loadstring
               </button>
             </div>
@@ -587,11 +586,10 @@
           scriptsList.appendChild(scriptDiv);
         });
 
-        // Add event listeners
         document.querySelectorAll(".edit-btn").forEach(button => {
           button.addEventListener("click", () => {
             const id = button.dataset.scriptId;
-            const scriptContent = button.closest(".youtube-card").querySelector("textarea").value;
+            const scriptContent = button.closest(".roblox-card").querySelector("textarea").value;
             openEditModal(id, scriptContent);
           });
         });
@@ -615,7 +613,6 @@
       }
     }
 
-    // Edit modal handling
     let currentEditId = null;
     
     function openEditModal(id, script) {
@@ -662,7 +659,6 @@
       }
     });
 
-    // Delete script
     async function deleteScript(id) {
       if (!confirm("هل أنت متأكد من حذف هذا النص؟")) return;
 
@@ -688,14 +684,12 @@
       }
     }
 
-    // Copy loadstring
     async function copyLoadstring(loadstring) {
       try {
         await navigator.clipboard.writeText(loadstring);
         showToast("تم نسخ Loadstring بنجاح!");
       } catch (err) {
         console.error("Error copying loadstring:", err);
-        // Fallback for older browsers
         const tempInput = document.createElement("input");
         tempInput.value = loadstring;
         document.body.appendChild(tempInput);
@@ -711,7 +705,6 @@
       }
     }
 
-    // Close modal when clicking outside
     document.getElementById("editModal").addEventListener("click", (e) => {
       if (e.target === e.currentTarget) {
         document.getElementById("editModal").classList.remove("show");
@@ -719,13 +712,11 @@
       }
     });
 
-    // Initialize sidebar state on desktop
     if (window.innerWidth > 768) {
       sidebar.classList.add("open");
       mainContent.style.marginLeft = "240px";
     }
 
-    // Handle window resize
     window.addEventListener("resize", () => {
       if (window.innerWidth > 768) {
         if (sidebar.classList.contains("open")) {
@@ -738,4 +729,3 @@
   </script>
 </body>
 </html>
-
