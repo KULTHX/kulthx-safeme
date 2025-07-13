@@ -1,0 +1,24 @@
+{
+  "name": "kulthx-discord-bot",
+  "version": "1.0.0",
+  "description": "KULTHX SAFEME Discord Bot - حماية نصوص Roblox عبر ديسكورد",
+  "main": "bot.js",
+  "type": "module",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "node --watch start.js",
+    "server": "node server.js",
+    "bot": "node bot.js"
+  },
+  "keywords": ["discord", "bot", "roblox", "script", "protection"],
+  "author": "KULTHX",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  }
+}
+

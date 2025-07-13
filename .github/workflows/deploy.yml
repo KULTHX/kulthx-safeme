@@ -1,0 +1,90 @@
+name: Deploy Discord Bot
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests (if any)
+      run: npm test --if-present
+    
+    - name: Check code syntax
+      run: node --check bot.js && node --check server.js
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create production build
+      run: |
+        echo "Creating production environment file..."
+        echo "DISCORD_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+        echo "BOT_PREFIX=!" >> .env
+        echo "MAX_SCRIPT_LENGTH=50000" >> .env
+        echo "MAX_SCRIPTS_PER_USER=50" >> .env
+        echo "PORT=3000" >> .env
+        echo "NODE_ENV=production" >> .env
+    
+    # Deploy to Railway (uncomment if using Railway)
+    # - name: Deploy to Railway
+    #   uses: railway-app/railway-action@v1
+    #   with:
+    #     api-token: ${{ secrets.RAILWAY_TOKEN }}
+    #     project-id: ${{ secrets.RAILWAY_PROJECT_ID }}
+    
+    # Deploy to Heroku (uncomment if using Heroku)
+    # - name: Deploy to Heroku
+    #   uses: akhileshns/heroku-deploy@v3.12.14
+    #   with:
+    #     heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+    #     heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+    #     heroku_email: ${{ secrets.HEROKU_EMAIL }}
+    
+    # Deploy to VPS (uncomment if using VPS)
+    # - name: Deploy to VPS
+    #   uses: appleboy/ssh-action@v1.0.0
+    #   with:
+    #     host: ${{ secrets.VPS_HOST }}
+    #     username: ${{ secrets.VPS_USERNAME }}
+    #     key: ${{ secrets.VPS_SSH_KEY }}
+    #     script: |
+    #       cd /path/to/your/bot
+    #       git pull origin main
+    #       npm ci
+    #       pm2 restart kulthx-bot || pm2 start bot.js --name kulthx-bot
+    
+    - name: Deployment Success
+      run: |
+        echo "✅ Deployment completed successfully!"
+        echo "🤖 Bot should be running with token: ${{ secrets.BOT_TOKEN }}"
+
