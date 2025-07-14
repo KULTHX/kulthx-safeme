@@ -9,10 +9,10 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
+import fs from "fs/promises";
+import path from "path";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-
-import { saveScript, getScript, getAllScripts, deleteScript } from './supabase-db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -119,6 +119,65 @@ function validateUserId(userId) {
   return null;
 }
 
+// Local file storage for scripts
+const DATA_DIR = path.join(__dirname, "data");
+const SCRIPTS_FILE = path.join(DATA_DIR, "scripts.json");
+
+async function ensureDataDirectory() {
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+  } catch (error) {
+    if (error.code !== "EEXIST") {
+      console.error("Error ensuring data directory:", error);
+      throw error;
+    }
+  }
+}
+
+async function loadScripts() {
+  await ensureDataDirectory();
+  try {
+    const data = await fs.readFile(SCRIPTS_FILE, "utf8");
+    return JSON.parse(data);
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return []; // File not found, return empty array
+    }
+    console.error("Error loading scripts:", error);
+    return [];
+  }
+}
+
+async function saveScripts(scripts) {
+  await ensureDataDirectory();
+  try {
+    await fs.writeFile(SCRIPTS_FILE, JSON.stringify(scripts, null, 2), "utf8");
+  } catch (error) {
+    console.error("Error saving scripts:", error);
+    throw error;
+  }
+}
+
+async function getScript(id) {
+  const scripts = await loadScripts();
+  return scripts.find(script => script.id === id);
+}
+
+async function getAllScripts() {
+  return await loadScripts();
+}
+
+async function deleteScript(id) {
+  let scripts = await loadScripts();
+  const initialLength = scripts.length;
+  scripts = scripts.filter(script => script.id !== id);
+  if (scripts.length < initialLength) {
+    await saveScripts(scripts);
+    return true;
+  }
+  return false;
+}
+
 // Routes - All routes now serve the single page
 app.get("/", (req, res) => {
   res.render("index", {
@@ -197,12 +256,9 @@ app.post("/generate", rateLimit, async (req, res) => {
       lastAccessed: null
     };
 
-    const savedScript = await saveScript(newScriptData);
+    allUserScripts.push(newScriptData);
+    await saveScripts(allUserScripts);
     
-    if (!savedScript) {
-      throw new Error("Failed to save script to Supabase");
-    }
-
     const url = `${req.protocol}://${req.get("host")}/script.lua?id=${id}`;
     const loadstring = `loadstring(game:HttpGet("${url}"))()`;
     
@@ -231,10 +287,14 @@ app.get("/script.lua", async (req, res) => {
     }
 
     // Update access statistics
-    // Note: Supabase update logic would go here if needed, for now just serve
-    // scriptData.accessCount = (scriptData.accessCount || 0) + 1;
-    // scriptData.lastAccessed = new Date().toISOString();
-    // await updateScript(scriptData.id, { accessCount: scriptData.accessCount, lastAccessed: scriptData.lastAccessed });
+    scriptData.accessCount = (scriptData.accessCount || 0) + 1;
+    scriptData.lastAccessed = new Date().toISOString();
+    let allScripts = await loadScripts();
+    const index = allScripts.findIndex(s => s.id === id);
+    if (index !== -1) {
+      allScripts[index] = scriptData;
+      await saveScripts(allScripts);
+    }
 
     res.type("text/plain").send(scriptData.script);
   } catch (err) {
@@ -305,15 +365,14 @@ app.post("/my-scripts/:id", async (req, res) => {
       return res.status(400).json({ error: "This script is already protected by you!" });
     }
 
-    // Update script in Supabase
-    const { data, error } = await supabase
-      .from("scripts")
-      .update({ script: script.trim(), updatedAt: new Date().toISOString() })
-      .eq("id", id);
-
-    if (error) {
-      console.error("Error updating script:", error);
-      return res.status(500).json({ error: "Failed to update script" });
+    // Update script
+    existingScript.script = script.trim();
+    existingScript.updatedAt = new Date().toISOString();
+    let allScripts = await loadScripts();
+    const index = allScripts.findIndex(s => s.id === id);
+    if (index !== -1) {
+      allScripts[index] = existingScript;
+      await saveScripts(allScripts);
     }
 
     res.json({ message: "Script updated successfully" });
@@ -340,7 +399,7 @@ app.delete("/my-scripts/:id", async (req, res) => {
 
     const deleted = await deleteScript(id);
     if (!deleted) {
-      throw new Error("Failed to delete script from Supabase");
+      throw new Error("Failed to delete script");
     }
 
     res.json({ message: "Script deleted successfully" });
@@ -369,7 +428,7 @@ app.get("/health", async (req, res) => {
 
 // 404 handler - redirect to main page
 app.use((req, res) => {
-  res.redirect('/');
+  res.redirect("/");
 });
 
 // Error handler
@@ -417,10 +476,11 @@ process.on("SIGINT", async () => {
 // Initialize and start server
 async function startServer() {
   try {
+    await ensureDataDirectory(); // Ensure data directory exists on startup
     server.listen(CONFIG.PORT, CONFIG.HOST, () => {
       console.log(`🚀 KULTHX SAFEME Server running on ${CONFIG.HOST}:${CONFIG.PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
-      console.log(`💾 Database: Supabase`);
+      console.log(`💾 Database: Local File (scripts.json)`);
     });
   } catch (err) {
     console.error("❌ Failed to start server:", err);
