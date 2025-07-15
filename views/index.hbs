@@ -3,184 +3,427 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KULTHX SAFEME - حماية نصوص Roblox</title>
+  <title>KULTHX SAFEME v2 - حماية نصوص Roblox</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      --dark-gradient: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+      --card-gradient: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      --glass-effect: rgba(255, 255, 255, 0.1);
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0b0;
+      --border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      background: hsl(210, 11%, 6%);
+      background: var(--dark-gradient);
       font-family: "Noto Sans Arabic", "Inter", sans-serif;
-      color: hsl(0, 0%, 100%);
+      color: var(--text-primary);
       margin: 0;
       padding: 0;
       overflow-x: hidden;
+      min-height: 100vh;
     }
 
-    .roblox-header {
-      background: rgba(33, 37, 41, 0.9); /* hsl(210, 11%, 15%) with opacity */
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid hsl(210, 11%, 15%);
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      z-index: -1;
+      animation: backgroundMove 20s ease-in-out infinite;
     }
 
-    .roblox-sidebar {
-      background: rgba(33, 37, 41, 0.95); /* hsl(210, 11%, 15%) with opacity */
-      backdrop-filter: blur(10px);
-      border-left: 1px solid hsl(210, 11%, 15%);
+    @keyframes backgroundMove {
+      0%, 100% { transform: translateX(0) translateY(0); }
+      25% { transform: translateX(-20px) translateY(-10px); }
+      50% { transform: translateX(20px) translateY(10px); }
+      75% { transform: translateX(-10px) translateY(20px); }
     }
 
-    .roblox-card {
-      background: hsl(210, 11%, 8%);
-      border: 1px solid hsl(210, 11%, 15%);
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.2s ease;
+    /* Glass Morphism Effect */
+    .glass-card {
+      background: var(--card-gradient);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
     }
 
-    .roblox-card:hover {
+    .glass-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    /* Modern Header */
+    .modern-header {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: 70px;
+    }
+
+    /* Professional Navigation */
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--primary-gradient);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      animation: logoGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes logoGlow {
+      0% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+      100% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.8); }
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Modern Navigation Menu */
+    .nav-menu {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .nav-item {
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--primary-gradient);
+      transition: left 0.3s ease;
+      z-index: -1;
+    }
+
+    .nav-item:hover::before,
+    .nav-item.active::before {
+      left: 0;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      color: white;
       transform: translateY(-2px);
     }
 
-    .roblox-button {
-      background: hsl(199, 89%, 48%);
-      color: hsl(0, 0%, 100%);
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+      display: none;
+      background: var(--primary-gradient);
       border: none;
       border-radius: 12px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-
-    .roblox-button:hover {
-      background: hsl(199, 89%, 38%);
-      transform: scale(1.05);
-    }
-
-    .roblox-button-secondary {
-      background: hsl(210, 11%, 15%);
-      color: hsl(199, 89%, 48%);
-      border: none;
-      border-radius: 12px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-
-    .roblox-button-secondary:hover {
-      background: hsl(210, 11%, 20%);
-      transform: scale(1.05);
-    }
-
-    .roblox-button-danger {
-      background: hsl(0, 100%, 50%);
-      color: hsl(0, 0%, 100%);
-      border: none;
-      border-radius: 12px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-
-    .roblox-button-danger:hover {
-      background: hsl(0, 100%, 40%);
-      transform: scale(1.05);
-    }
-
-    .roblox-input {
-      background: hsl(210, 11%, 10%);
-      border: 1px solid hsl(210, 11%, 15%);
-      border-radius: 12px;
-      color: hsl(0, 0%, 100%);
-      padding: 12px;
-      font-family: "Fira Code", monospace;
-      font-size: 16px;
-    }
-
-    .roblox-input:focus {
-      outline: none;
-      border-color: hsl(199, 89%, 48%);
-      box-shadow: 0 0 0 3px rgba(33, 184, 230, 0.3);
-    }
-
-    .roblox-text-primary {
-      color: hsl(0, 0%, 100%);
-    }
-
-    .roblox-text-secondary {
-      color: hsl(0, 0%, 67%);
-    }
-
-    .hamburger-btn {
-      background: none;
-      border: none;
-      color: hsl(199, 89%, 48%);
-      padding: 8px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    .hamburger-btn:hover {
-      background: rgba(33, 184, 230, 0.1);
-    }
-
-    .sidebar-item {
-      color: hsl(0, 0%, 100%);
-      padding: 12px 24px;
-      display: flex;
+      width: 45px;
+      height: 45px;
       align-items: center;
-      text-decoration: none;
-      border-radius: 12px;
-      margin: 0 12px;
-      transition: background-color 0.2s ease;
+      justify-content: center;
       cursor: pointer;
+      transition: all 0.3s ease;
     }
 
-    .sidebar-item:hover {
-      background: rgba(33, 184, 230, 0.1);
+    .mobile-menu-btn:hover {
+      transform: scale(1.1);
     }
 
-    .sidebar-item.active {
-      background: rgba(33, 184, 230, 0.2);
-      color: hsl(199, 89%, 48%);
+    /* Loading Bar */
+    .loading-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
     }
 
+    .loading-content {
+      text-align: center;
+    }
+
+    .loading-square {
+      width: 60px;
+      height: 60px;
+      background: var(--primary-gradient);
+      border-radius: 12px;
+      margin: 0 auto 1rem;
+      animation: loadingAnimation 2s ease-in-out infinite;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loading-square::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes loadingAnimation {
+      0% { 
+        transform: rotate(0deg) scale(1);
+        border-radius: 12px;
+      }
+      25% { 
+        transform: rotate(90deg) scale(1.1);
+        border-radius: 50%;
+      }
+      50% { 
+        transform: rotate(180deg) scale(1);
+        border-radius: 12px;
+      }
+      75% { 
+        transform: rotate(270deg) scale(1.1);
+        border-radius: 50%;
+      }
+      100% { 
+        transform: rotate(360deg) scale(1);
+        border-radius: 12px;
+      }
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .loading-subtext {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* Modern Buttons */
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: var(--danger-gradient);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(250, 112, 154, 0.4);
+    }
+
+    /* Modern Input */
+    .modern-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-primary);
+      padding: 1rem;
+      font-family: "Fira Code", monospace;
+      font-size: 1rem;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .modern-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .modern-textarea {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-primary);
+      padding: 1rem;
+      font-family: "Fira Code", monospace;
+      font-size: 1rem;
+      width: 100%;
+      resize: vertical;
+      min-height: 200px;
+      transition: all 0.3s ease;
+    }
+
+    .modern-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Toast Notifications */
     .toast {
       position: fixed;
-      top: 20px;
+      top: 90px;
       right: 20px;
-      z-index: 1000;
-      padding: 12px 16px;
+      z-index: 1500;
+      padding: 1rem 1.5rem;
       border-radius: 12px;
-      color: hsl(0, 0%, 100%);
+      color: white;
       font-weight: 500;
       opacity: 0;
-      transform: translateY(-20px);
+      transform: translateX(100px);
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
     }
 
     .toast.show {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(0);
     }
 
     .toast.success {
-      background: hsl(120, 61%, 34%);
+      background: var(--success-gradient);
     }
 
     .toast.error {
-      background: hsl(0, 100%, 50%);
+      background: var(--danger-gradient);
     }
 
+    /* Modal */
     .modal {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 1500;
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s ease;
@@ -192,36 +435,163 @@
     }
 
     .modal-content {
-      background: hsl(210, 11%, 8%);
-      border: 1px solid hsl(210, 11%, 15%);
-      border-radius: 16px;
-      padding: 24px;
+      background: var(--card-gradient);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
       max-width: 600px;
       width: 90%;
       max-height: 80vh;
       overflow-y: auto;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     }
 
+    /* Page Sections */
     .page-section {
       display: none;
+      padding-top: 90px;
+      min-height: 100vh;
     }
 
     .page-section.active {
       display: block;
     }
 
+    /* Hero Section */
+    .hero-section {
+      text-align: center;
+      padding: 4rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .hero-subtitle {
+      font-size: 1.3rem;
+      color: var(--text-secondary);
+      margin-bottom: 3rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    /* Feature Cards */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 4rem 0;
+    }
+
+    .feature-card {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .feature-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--primary-gradient);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.5rem;
+      animation: featureFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes featureFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .feature-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .feature-description {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Responsive Design */
     @media (max-width: 768px) {
-      .sidebar {
-        transform: translateX(-100%);
+      .nav-menu {
+        display: none;
       }
-      .sidebar.open {
-        transform: translateX(0);
+      
+      .mobile-menu-btn {
+        display: flex;
       }
+      
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.1rem;
+      }
+      
+      .nav-container {
+        padding: 0 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-section {
+        padding: 2rem 1rem;
+      }
+      
+      .hero-title {
+        font-size: 2rem;
+      }
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-gradient);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-gradient);
     }
   </style>
 </head>
 <body>
+  <!-- Loading Screen -->
+  <div id="loadingContainer" class="loading-container">
+    <div class="loading-content">
+      <div class="loading-square"></div>
+      <div class="loading-text">جاري حماية النص...</div>
+      <div class="loading-subtext">يرجى الانتظار قليلاً</div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast" class="toast">
     <span id="toastMessage"></span>
@@ -230,93 +600,100 @@
   <!-- Edit Modal -->
   <div id="editModal" class="modal">
     <div class="modal-content">
-      <h3 class="text-xl font-semibold roblox-text-primary mb-4">تعديل النص</h3>
+      <h3 class="text-xl font-semibold mb-4">تعديل النص</h3>
       <textarea 
         id="editScriptInput" 
-        rows="6" 
-        class="roblox-input w-full p-3 text-sm resize-none mb-4"
+        class="modern-textarea mb-4"
         placeholder="أدخل النص المحدث هنا..."
       ></textarea>
-      <div class="flex justify-end space-x-3">
-        <button id="cancelEdit" class="roblox-button-secondary px-4 py-2 text-sm">إلغاء</button>
-        <button id="saveEdit" class="roblox-button px-4 py-2 text-sm">حفظ</button>
+      <div class="flex justify-end gap-3">
+        <button id="cancelEdit" class="btn-secondary">إلغاء</button>
+        <button id="saveEdit" class="btn-primary">حفظ</button>
       </div>
     </div>
   </div>
 
-  <!-- Header -->
-  <header class="roblox-header fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-4">
-    <button id="hamburgerBtn" class="hamburger-btn mr-4">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-      </svg>
-    </button>
-    
-    <div class="flex items-center flex-1">
-      <span class="text-2xl mr-2">🛡️</span>
-      <h1 class="text-xl font-semibold roblox-text-primary">KULTHX SAFEME</h1>
+  <!-- Modern Header -->
+  <header class="modern-header">
+    <div class="nav-container">
+      <div class="logo-section">
+        <div class="logo-icon">🛡️</div>
+        <div class="logo-text">KULTHX SAFEME</div>
+        <span style="font-size: 0.8rem; color: var(--text-secondary); margin-right: 0.5rem;">v2.0</span>
+      </div>
+      
+      <nav class="nav-menu">
+        <a href="#" class="nav-item active" data-page="home">الرئيسية</a>
+        <a href="#" class="nav-item" data-page="scripts">نصوصي</a>
+        <a href="#" class="nav-item" data-page="about">حول</a>
+      </nav>
+      
+      <button id="mobileMenuBtn" class="mobile-menu-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+          <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+        </svg>
+      </button>
     </div>
   </header>
 
-  <!-- Sidebar -->
-  <nav id="sidebar" class="sidebar roblox-sidebar fixed left-0 top-14 bottom-0 w-60 z-40 transition-transform duration-300 overflow-y-auto">
-    <div class="py-3">
-      <div class="sidebar-item active" data-page="home">
-        <span class="mr-6">🏠</span>
-        <span>الرئيسية</span>
-      </div>
-      <div class="sidebar-item" data-page="scripts">
-        <span class="mr-6">📜</span>
-        <span>نصوصي</span>
-      </div>
-      <div class="sidebar-item" data-page="about">
-        <span class="mr-6">ℹ️</span>
-        <span>حول</span>
-      </div>
-    </div>
-  </nav>
-
   <!-- Main Content -->
-  <main class="pt-14 transition-all duration-300" id="mainContent">
+  <main>
     
     <!-- Home Page -->
     <div id="homePage" class="page-section active">
-      <div class="max-w-6xl mx-auto p-4 md:p-6">
-        <!-- Hero Section -->
-        <div class="roblox-card p-6 md:p-8 mb-8">
-          <div class="text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-4 roblox-text-primary">حماية نصوص Roblox</h2>
-            <p class="text-lg roblox-text-secondary mb-8 max-w-3xl mx-auto">قم بتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox!</p>
-            
-            <div class="max-w-4xl mx-auto mb-6">
-              <textarea 
-                id="scriptInput" 
-                rows="8" 
-                class="roblox-input w-full p-4 text-base resize-none"
-                placeholder="الصق نص Roblox الخاص بك هنا..."
-              ></textarea>
-            </div>
-            
-            <button id="protectBtn" class="roblox-button px-6 py-3 text-base font-semibold">
-              🚀 احم نصك
-            </button>
-            
-            <div id="result" class="mt-8 hidden">
-              <div class="roblox-card p-6">
-                <p class="text-green-500 font-semibold text-lg mb-4">✅ Loadstring النص المحمي:</p>
-                <div class="mb-4">
-                  <input 
-                    id="scriptLink" 
-                    type="text" 
-                    readonly 
-                    class="roblox-input w-full p-3 text-sm font-mono"
-                  >
-                </div>
-                <button id="copyBtn" class="roblox-button px-4 py-2 text-sm">
-                  📋 نسخ Loadstring
-                </button>
+      <div class="hero-section">
+        <h1 class="hero-title">حماية نصوص Roblox</h1>
+        <p class="hero-subtitle">منصة احترافية لتشفير ومشاركة نصوصك بأمان مع loadstring فريد لمنفذي Roblox</p>
+        
+        <div class="glass-card" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+          <textarea 
+            id="scriptInput" 
+            class="modern-textarea"
+            placeholder="الصق نص Roblox الخاص بك هنا..."
+            style="margin-bottom: 1.5rem;"
+          ></textarea>
+          
+          <button id="protectBtn" class="btn-primary" style="font-size: 1.1rem; padding: 1.2rem 2.5rem;">
+            🚀 احم نصك الآن
+          </button>
+          
+          <div id="result" class="mt-8 hidden">
+            <div class="glass-card p-6">
+              <p class="text-green-400 font-semibold text-lg mb-4">✅ تم إنشاء Loadstring بنجاح:</p>
+              <div class="mb-4">
+                <input 
+                  id="scriptLink" 
+                  type="text" 
+                  readonly 
+                  class="modern-input"
+                  style="font-size: 0.9rem;"
+                >
               </div>
+              <button id="copyBtn" class="btn-secondary">
+                📋 نسخ Loadstring
+              </button>
             </div>
+          </div>
+        </div>
+        
+        <!-- Features Section -->
+        <div class="feature-grid">
+          <div class="glass-card feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3 class="feature-title">تشفير قوي</h3>
+            <p class="feature-description">حماية متقدمة لنصوصك مع تشفير عالي الجودة</p>
+          </div>
+          
+          <div class="glass-card feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3 class="feature-title">سرعة فائقة</h3>
+            <p class="feature-description">معالجة سريعة وفورية لجميع النصوص</p>
+          </div>
+          
+          <div class="glass-card feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3 class="feature-title">سهولة الاستخدام</h3>
+            <p class="feature-description">واجهة بسيطة وسهلة للجميع</p>
           </div>
         </div>
       </div>
@@ -324,10 +701,10 @@
 
     <!-- Scripts Page -->
     <div id="scriptsPage" class="page-section">
-      <div class="max-w-6xl mx-auto p-4 md:p-6">
-        <div class="mb-8">
-          <h2 class="text-2xl md:text-3xl font-bold roblox-text-primary mb-2">📜 نصوصي المحمية</h2>
-          <p class="roblox-text-secondary">إدارة وتعديل النصوص المحمية الخاصة بك</p>
+      <div style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+        <div class="text-center mb-8">
+          <h2 class="text-3xl font-bold mb-2" style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">📜 نصوصي المحمية</h2>
+          <p class="text-lg" style="color: var(--text-secondary);">إدارة وتعديل النصوص المحمية الخاصة بك</p>
         </div>
 
         <div id="scriptsList" class="space-y-4">
@@ -338,57 +715,48 @@
 
     <!-- About Page -->
     <div id="aboutPage" class="page-section">
-      <div class="max-w-6xl mx-auto p-4 md:p-6">
-        <section class="mb-8">
-          <h2 class="text-2xl md:text-3xl font-bold mb-6 roblox-text-primary text-center">ℹ️ حول KULTHX SAFEME</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="roblox-card p-6 transition-all duration-200">
-              <div class="text-center mb-4">
-                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span class="text-xl">🛡️</span>
-                </div>
-                <h3 class="text-lg font-semibold roblox-text-primary mb-3">ما هو KULTHX SAFEME؟</h3>
+      <div style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+        <div class="text-center mb-8">
+          <h2 class="text-3xl font-bold mb-4" style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ℹ️ حول KULTHX SAFEME v2</h2>
+        </div>
+        
+        <div class="feature-grid">
+          <div class="glass-card feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3 class="feature-title">ما هو KULTHX SAFEME؟</h3>
+            <p class="feature-description">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
+          </div>
+          
+          <div class="glass-card feature-card">
+            <div class="feature-icon">⚙️</div>
+            <h3 class="feature-title">كيف يعمل</h3>
+            <p class="feature-description">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
+          </div>
+          
+          <div class="glass-card feature-card">
+            <div class="feature-icon">⭐</div>
+            <h3 class="feature-title">لماذا تختارنا؟</h3>
+            <div class="feature-description">
+              <div style="text-align: right; margin-top: 1rem;">
+                <div style="margin-bottom: 0.5rem;">✓ تشفير قوي لحماية نصوصك</div>
+                <div style="margin-bottom: 0.5rem;">✓ واجهة حديثة وسهلة الاستخدام</div>
+                <div style="margin-bottom: 0.5rem;">✓ loadstring فريد وآمن لكل نص</div>
+                <div>✓ تحديثات ودعم مستمر</div>
               </div>
-              <p class="roblox-text-secondary text-sm leading-relaxed">منصة مبتكرة لحماية نصوص Roblox، تقدم حلولاً آمنة لتحويل نصوصك إلى روابط مشفرة للاستخدام الآمن داخل اللعبة.</p>
-            </div>
-            
-            <div class="roblox-card p-6 transition-all duration-200">
-              <div class="text-center mb-4">
-                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span class="text-xl">⚙️</span>
-                </div>
-                <h3 class="text-lg font-semibold roblox-text-primary mb-3">كيف يعمل</h3>
-              </div>
-              <p class="roblox-text-secondary text-sm leading-relaxed">أدخل نصك، وسنقوم بتخزينه بأمان، مع إنشاء loadstring فريد للاستخدام في Roblox عبر HttpGet.</p>
-            </div>
-            
-            <div class="roblox-card p-6 transition-all duration-200">
-              <div class="text-center mb-4">
-                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span class="text-xl">⭐</span>
-                </div>
-                <h3 class="text-lg font-semibold roblox-text-primary mb-3">لماذا تختارنا؟</h3>
-              </div>
-              <ul class="roblox-text-secondary text-sm space-y-2">
-                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> تشفير قوي لحماية نصوصك</li>
-                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> واجهة حديثة وسهلة الاستخدام</li>
-                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> loadstring فريد وآمن لكل نص</li>
-                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> تحديثات ودعم مستمر</li>
-              </ul>
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </div>
 
   </main>
 
   <!-- Footer -->
-  <footer class="roblox-header border-t border-hsl(210, 11%, 15%) mt-12">
-    <div class="max-w-6xl mx-auto p-6 text-center">
-      <h3 class="text-lg font-semibold roblox-text-primary mb-2">KULTHX SAFEME</h3>
-      <p class="roblox-text-secondary text-sm">© 2025 جميع الحقوق محفوظة ✨</p>
-      <p class="roblox-text-secondary text-xs mt-2">منصة آمنة وموثوقة لحماية نصوص Roblox</p>
+  <footer style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(20px); border-top: 1px solid var(--border-color); margin-top: 4rem;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 2rem; text-align: center;">
+      <h3 class="text-lg font-semibold mb-2" style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">KULTHX SAFEME v2</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">© 2025 جميع الحقوق محفوظة ✨</p>
+      <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem;">منصة آمنة وموثوقة لحماية نصوص Roblox</p>
     </div>
   </footer>
 
@@ -413,7 +781,7 @@
       
       document.getElementById(pageId + 'Page').classList.add('active');
       
-      document.querySelectorAll('.sidebar-item').forEach(item => {
+      document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
       });
       document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
@@ -425,36 +793,22 @@
       }
     }
 
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-      item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
         const pageId = item.dataset.page;
         showPage(pageId);
       });
     });
 
-    const hamburgerBtn = document.getElementById("hamburgerBtn");
-    const sidebar = document.getElementById("sidebar");
-    const mainContent = document.getElementById("mainContent");
+    // Loading functions
+    function showLoading() {
+      document.getElementById('loadingContainer').style.display = 'flex';
+    }
 
-    hamburgerBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      if (window.innerWidth > 768) {
-        if (sidebar.classList.contains("open")) {
-          mainContent.style.marginLeft = "240px";
-        } else {
-          mainContent.style.marginLeft = "0";
-        }
-      }
-    });
-
-    document.addEventListener("click", (e) => {
-      if (window.innerWidth <= 768 && 
-          !sidebar.contains(e.target) && 
-          !hamburgerBtn.contains(e.target) && 
-          sidebar.classList.contains("open")) {
-        sidebar.classList.remove("open");
-      }
-    });
+    function hideLoading() {
+      document.getElementById('loadingContainer').style.display = 'none';
+    }
 
     function showToast(message, type = "success") {
       const toast = document.getElementById("toast");
@@ -466,15 +820,18 @@
       
       setTimeout(() => {
         toast.classList.remove("show");
-      }, 3000);
+      }, 4000);
     }
 
+    // Protect script functionality
     document.getElementById("protectBtn").addEventListener("click", async () => {
       const script = document.getElementById("scriptInput").value;
       if (!script.trim()) {
         showToast("يرجى إدخال نص أولاً!", "error");
         return;
       }
+
+      showLoading();
 
       try {
         const response = await fetch("/generate", {
@@ -484,6 +841,8 @@
         });
         
         const data = await response.json();
+        
+        hideLoading();
         
         if (data.error) {
           showToast(data.error, "error");
@@ -502,10 +861,12 @@
         resultDiv.classList.remove("hidden");
         showToast("تم حماية النص بنجاح!");
       } catch (err) {
+        hideLoading();
         showToast("حدث خطأ في إنشاء loadstring!", "error");
       }
     });
 
+    // Copy functionality
     document.getElementById("copyBtn").addEventListener("click", async () => {
       const scriptLink = document.getElementById("scriptLink");
       
@@ -519,6 +880,7 @@
       } 
     });
 
+    // Load scripts functionality
     async function loadScripts() {
       try {
         const response = await fetch("/my-scripts", {
@@ -539,8 +901,8 @@
         
         if (scripts.length === 0) {
           scriptsList.innerHTML = `
-            <div class="roblox-card p-6 text-center">
-              <p class="roblox-text-secondary">لا توجد نصوص محمية. احم نصك الأول من <span class="text-blue-400 hover:text-blue-300 underline cursor-pointer" onclick="showPage('home')">الصفحة الرئيسية</span>.</p>
+            <div class="glass-card p-6 text-center">
+              <p style="color: var(--text-secondary);">لا توجد نصوص محمية. احم نصك الأول من <span style="color: #667eea; cursor: pointer; text-decoration: underline;" onclick="showPage('home')">الصفحة الرئيسية</span>.</p>
             </div>
           `;
           return;
@@ -548,37 +910,40 @@
 
         scripts.forEach(script => {
           const scriptDiv = document.createElement("div");
-          scriptDiv.className = "roblox-card p-4 md:p-6";
+          scriptDiv.className = "glass-card";
+          scriptDiv.style.padding = "1.5rem";
           scriptDiv.innerHTML = `
-            <div class="mb-4">
-              <p class="font-semibold roblox-text-primary text-sm mb-2">Loadstring:</p>
+            <div style="margin-bottom: 1rem;">
+              <p style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem; margin-bottom: 0.5rem;">Loadstring:</p>
               <input 
                 type="text" 
                 value="${script.loadstring.replace(/"/g, "&quot;")}" 
                 readonly 
-                class="roblox-input w-full p-2 text-xs font-mono"
+                class="modern-input"
+                style="font-size: 0.8rem;"
               >
             </div>
             
-            <div class="mb-4">
-              <p class="roblox-text-secondary text-xs mb-2">
-                <span class="font-semibold">تاريخ الإنشاء:</span> ${new Date(script.createdAt).toLocaleString()}
+            <div style="margin-bottom: 1rem;">
+              <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">
+                <span style="font-weight: 600;">تاريخ الإنشاء:</span> ${new Date(script.createdAt).toLocaleString()}
               </p>
               <textarea 
                 rows="4" 
-                class="roblox-input w-full p-2 text-xs font-mono resize-none" 
+                class="modern-input" 
                 readonly
+                style="font-size: 0.8rem; resize: none;"
               >${script.script.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</textarea>
             </div>
             
-            <div class="flex flex-wrap gap-2">
-              <button class="edit-btn roblox-button-secondary px-3 py-1.5 text-xs" data-script-id="${script.id}">
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <button class="edit-btn btn-secondary" data-script-id="${script.id}" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
                 ✏️ تعديل
               </button>
-              <button class="delete-btn roblox-button-danger px-3 py-1.5 text-xs" data-script-id="${script.id}">
+              <button class="delete-btn btn-danger" data-script-id="${script.id}" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
                 🗑️ حذف
               </button>
-              <button class="copy-btn roblox-button px-3 py-1.5 text-xs" data-loadstring="${script.loadstring.replace(/"/g, "&quot;")}">
+              <button class="copy-btn btn-primary" data-loadstring="${script.loadstring.replace(/"/g, "&quot;")}" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
                 📋 نسخ Loadstring
               </button>
             </div>
@@ -586,10 +951,11 @@
           scriptsList.appendChild(scriptDiv);
         });
 
+        // Add event listeners
         document.querySelectorAll(".edit-btn").forEach(button => {
           button.addEventListener("click", () => {
             const id = button.dataset.scriptId;
-            const scriptContent = button.closest(".roblox-card").querySelector("textarea").value;
+            const scriptContent = button.closest(".glass-card").querySelector("textarea").value;
             openEditModal(id, scriptContent);
           });
         });
@@ -613,6 +979,7 @@
       }
     }
 
+    // Edit modal functionality
     let currentEditId = null;
     
     function openEditModal(id, script) {
@@ -659,6 +1026,7 @@
       }
     });
 
+    // Delete script functionality
     async function deleteScript(id) {
       if (!confirm("هل أنت متأكد من حذف هذا النص؟")) return;
 
@@ -684,6 +1052,7 @@
       }
     }
 
+    // Copy loadstring functionality
     async function copyLoadstring(loadstring) {
       try {
         await navigator.clipboard.writeText(loadstring);
@@ -705,6 +1074,7 @@
       }
     }
 
+    // Modal click outside to close
     document.getElementById("editModal").addEventListener("click", (e) => {
       if (e.target === e.currentTarget) {
         document.getElementById("editModal").classList.remove("show");
@@ -712,19 +1082,10 @@
       }
     });
 
-    if (window.innerWidth > 768) {
-      sidebar.classList.add("open");
-      mainContent.style.marginLeft = "240px";
-    }
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 768) {
-        if (sidebar.classList.contains("open")) {
-          mainContent.style.marginLeft = "240px";
-        }
-      } else {
-        mainContent.style.marginLeft = "0";
-      }
+    // Mobile menu functionality (placeholder for future implementation)
+    document.getElementById("mobileMenuBtn").addEventListener("click", () => {
+      // Mobile menu toggle functionality can be added here
+      showToast("قائمة الجوال قيد التطوير", "error");
     });
   </script>
 </body>
