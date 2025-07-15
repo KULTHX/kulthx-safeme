@@ -174,22 +174,93 @@
       transform: translateY(-2px);
     }
 
-    /* Mobile Menu Button */
-    .mobile-menu-btn {
-      display: none;
-      background: var(--primary-gradient);
-      border: none;
-      border-radius: 12px;
-      width: 45px;
-      height: 45px;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+    /* Mobile Menu */
+    .mobile-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1500;
+      opacity: 0;
+      visibility: hidden;
       transition: all 0.3s ease;
     }
 
-    .mobile-menu-btn:hover {
-      transform: scale(1.1);
+    .mobile-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 280px;
+      height: 100%;
+      background: var(--card-gradient);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border-color);
+      padding: 2rem 1rem;
+      z-index: 1600;
+      transition: right 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .mobile-menu.show {
+      right: 0;
+    }
+
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .mobile-menu-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .mobile-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
+
+    .mobile-close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .mobile-nav-item {
+      display: block;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .mobile-nav-item:hover,
+    .mobile-nav-item.active {
+      background: var(--primary-gradient);
+      color: white;
+      transform: translateX(-5px);
     }
 
     /* Loading Bar */
@@ -530,6 +601,24 @@
       line-height: 1.6;
     }
 
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+      display: none;
+      background: var(--primary-gradient);
+      border: none;
+      border-radius: 12px;
+      width: 45px;
+      height: 45px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mobile-menu-btn:hover {
+      transform: scale(1.1);
+    }
+
     /* Responsive Design */
     @media (max-width: 768px) {
       .nav-menu {
@@ -583,6 +672,19 @@
   </style>
 </head>
 <body>
+  <!-- Mobile Menu Overlay -->
+  <div id="mobileOverlay" class="mobile-overlay">
+    <nav id="mobileMenu" class="mobile-menu">
+      <div class="mobile-menu-header">
+        <div class="mobile-menu-title">القائمة</div>
+        <button id="mobileCloseBtn" class="mobile-close-btn">×</button>
+      </div>
+      <a href="#" class="mobile-nav-item active" data-page="home">🏠 الرئيسية</a>
+      <a href="#" class="mobile-nav-item" data-page="scripts">📜 نصوصي</a>
+      <a href="#" class="mobile-nav-item" data-page="about">ℹ️ حول</a>
+    </nav>
+  </div>
+
   <!-- Loading Screen -->
   <div id="loadingContainer" class="loading-container">
     <div class="loading-content">
@@ -1082,10 +1184,41 @@
       }
     });
 
-    // Mobile menu functionality (placeholder for future implementation)
-    document.getElementById("mobileMenuBtn").addEventListener("click", () => {
-      // Mobile menu toggle functionality can be added here
-      showToast("قائمة الجوال قيد التطوير", "error");
+    // Mobile menu functionality
+    function openMobileMenu() {
+      document.getElementById("mobileOverlay").classList.add("show");
+      document.getElementById("mobileMenu").classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeMobileMenu() {
+      document.getElementById("mobileOverlay").classList.remove("show");
+      document.getElementById("mobileMenu").classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    document.getElementById("mobileMenuBtn").addEventListener("click", openMobileMenu);
+    document.getElementById("mobileCloseBtn").addEventListener("click", closeMobileMenu);
+    document.getElementById("mobileOverlay").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) {
+        closeMobileMenu();
+      }
+    });
+
+    // Mobile navigation
+    document.querySelectorAll('.mobile-nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pageId = item.dataset.page;
+        showPage(pageId);
+        closeMobileMenu();
+        
+        // Update mobile nav active state
+        document.querySelectorAll('.mobile-nav-item').forEach(navItem => {
+          navItem.classList.remove('active');
+        });
+        item.classList.add('active');
+      });
     });
   </script>
 </body>
