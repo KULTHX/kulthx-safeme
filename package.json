@@ -4,7 +4,10 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "build": "npx vite build && esbuild server.js --bundle --platform=node --outfile=dist/server.cjs && cp -r dist/* public/ && cp -r views dist/views && cp package.json dist/package.json && cp package-lock.json dist/package-lock.json"
+    "build": "npx vite build && esbuild server.js --bundle --platform=node --outfile=dist/server.cjs && cp -r dist/* public/ && cp -r views dist/views && cp package.json dist/package.json && cp package-lock.json dist/package-lock.json",
+    "start": "node server.js",
+    "dev": "node server.js",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

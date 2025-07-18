@@ -1,0 +1,21 @@
+# Vercel ignore file
+.cache/
+.git/
+.replit
+replit.md
+koyeb.toml
+koyeb.yml
+.buildpacks
+Dockerfile
+docker-compose.yml
+DEPLOYMENT.md
+heroku-postbuild.sh
+build.sh
+node_modules/
+*.log
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+

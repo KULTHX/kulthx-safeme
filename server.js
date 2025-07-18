@@ -62,7 +62,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "10kb" }));
 
 // Configuration
 const CONFIG = {
-  PORT: process.env.PORT || 5000,
+  PORT: process.env.PORT || 3000,
   HOST: process.env.HOST || "0.0.0.0",
   MAX_SCRIPT_LENGTH: parseInt(process.env.MAX_SCRIPT_LENGTH) || 50000,
   MAX_SCRIPTS_PER_USER: parseInt(process.env.MAX_SCRIPTS_PER_USER) || 50,
