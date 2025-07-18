@@ -477,6 +477,13 @@ process.on("SIGINT", async () => {
 async function startServer() {
   try {
     await ensureDataDirectory(); // Ensure data directory exists on startup
+    
+    // For Vercel, we export the app instead of starting a server
+    if (process.env.VERCEL) {
+      console.log("🚀 KULTHX SAFEME running on Vercel");
+      return app;
+    }
+    
     server.listen(CONFIG.PORT, CONFIG.HOST, () => {
       console.log(`🚀 KULTHX SAFEME Server running on ${CONFIG.HOST}:${CONFIG.PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
@@ -484,9 +491,19 @@ async function startServer() {
     });
   } catch (err) {
     console.error("❌ Failed to start server:", err);
-    process.exit(1);
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   }
 }
 
-startServer();
+// For Vercel deployment
+if (process.env.VERCEL) {
+  startServer().then(() => {
+    // Export the app for Vercel
+    export default app;
+  });
+} else {
+  startServer();
+}
 
